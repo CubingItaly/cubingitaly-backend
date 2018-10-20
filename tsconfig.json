@@ -1,0 +1,19 @@
+{
+   "compilerOptions": {
+      "target": "es6",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "outDir": "./build/server",
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "sourceMap": true
+   },
+   "include": [
+       "src/*"
+   ],
+   "exclude": [
+       "src/secrets/keys.example.ts",
+       "**/*.spec.ts"
+   ]
+
+}
