@@ -16,6 +16,7 @@ if (process.env.NODE_ENV === "production") {
         userAgent: keys.wca.prod.user_agent
     },
         async (accessToken, refreshToken, profile, done) => {
+            console.log("callback");
             const user: UserModel = Deserialize(profile._json.me, UserModel);
             const userRepo: UserRepository = getCustomRepository(UserRepository);
             let dbUser: UserEntity = new UserEntity();

@@ -2,21 +2,43 @@
 
 import * as http from "http";
 import { Database } from './db/database';
-import { app } from './app';
+import * as express from 'express';
 import { Session } from "./db/entity/session.entity";
 import * as session from 'express-session';
 import { keys } from './secrets/keys';
 import { TypeormStore } from "typeorm-store";
+import * as passport from 'passport';
+import './passport/strategy.passport.wca';
+import { json, urlencoded } from 'body-parser';
+import * as compression from 'compression';
+import * as expressSanitizer from 'express-sanitizer';
+import * as helmet from 'helmet';
+import * as path from 'path';
+//Routes files
+import { router as authRoutes } from './api/v0/auth.api';
+import { router as articleRoutes } from './api/v0/article.api';
+import { router as teamRoutes } from './api/v0/team.api';
+import { router as userRoutes } from './api/v0/user.api';
+import { router as categoryRoutes } from './api/v0/category.api';
+import { router as pageRoutes } from './api/v0/page.api';
+import { router as tutorialRoutes } from './api/v0/tutorial.api';
+import { router as contactRoutes } from './api/v0/contact.api';
+
 
 const PORT = normalizePort(process.env.PORT || 4300);
 const db: Database = new Database();
+const app = express();
 let server;
 
 db.createConnection()
     .then(() => db.initDatabase())
     .then(() => console.log("Connection to DB created"))
     .then(() => {
+        setMiddleware()
         addSession();
+        addRoutes();
+        addStaticFiles();
+        setErrorHandlers();
         setPort();
         server = http.createServer(app);
         server.listen(PORT);
@@ -24,6 +46,54 @@ db.createConnection()
         server.on("listening", onListening);
     });
 
+function setMiddleware() {
+    app.use(helmet());
+    app.use(json());
+    app.use(compression());
+    app.use(urlencoded({ extended: true }));
+    app.use(expressSanitizer());
+}
+
+function addRoutes() {
+    app.use("/api/v0/auth", authRoutes);
+    app.use("/api/v0/teams", teamRoutes);
+    app.use("/api/v0/users", userRoutes);
+    app.use("/api/v0/articles", articleRoutes);
+    app.use("/api/v0/categories", categoryRoutes);
+    app.use("/api/v0/pages", pageRoutes);
+    app.use("/api/v0/tutorial", tutorialRoutes);
+    app.use("/api/v0/contact", contactRoutes);
+}
+
+function addStaticFiles() {
+    if (process.env.NODE_ENV === "production") {
+        //serve static files from client folder
+        app.use(express.static(path.join(__dirname, "/../client")));
+        //serve client routes
+        app.use("/*", function (req, res) {
+            res.sendFile(path.join(__dirname, "/../client/index.html"));
+        });
+    }
+
+}
+
+function setErrorHandlers() {
+    //cathc 404 and forward to herror handler
+    app.use((req: express.Request, res: express.Response, next) => {
+        const err = new Error("Not Found");
+        next(err);
+    });
+
+    //production herror handler
+    app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+
+        res.status(err.status || 500);
+        res.json({
+            error: {},
+            message: err.message,
+        });
+    });
+}
 
 function addSession() {
     let repo = db.connection.getRepository(Session);
@@ -36,6 +106,9 @@ function addSession() {
             store: new TypeormStore({ repository: repo })
         }
     ));
+
+    app.use(passport.initialize());
+    app.use(passport.session());
 }
 
 function setPort() {
