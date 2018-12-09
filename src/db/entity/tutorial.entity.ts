@@ -70,6 +70,9 @@ export class TutorialEntity extends BaseEntity implements ITransformable<Tutoria
         this.id = origin.id;
         this.title = origin.title;
         this.isPublic = origin.isPublic || false;
+        this.updateDate = origin.updateDate;
+        this.createDate = origin.createDate;
+
         if (origin.author !== undefined) {
             this.author = new UserEntity();
             this.author._assimilate(origin.author);
@@ -78,7 +81,5 @@ export class TutorialEntity extends BaseEntity implements ITransformable<Tutoria
             this.lastEditor = new UserEntity();
             this.lastEditor._assimilate(origin.lastEditor);
         }
-        this.updateDate = origin.updateDate;
-        this.createDate = origin.createDate;
     }
 }

@@ -73,6 +73,9 @@ export class TutorialRepository extends BaseCommonRepository<TutorialEntity>{
         page.isPublic = tutorial.isPublic;
         tutorial.lastEditor = user;
         tutorial.updateDate = new Date();
+        if (!page.content) {
+            page.content = "";
+        }
         if (!tutorial.pages) tutorial.pages = [];
         tutorial.pages.push(page);
         tutorial.pages = this.assignPageIndex(tutorial.pages);
@@ -94,10 +97,13 @@ export class TutorialRepository extends BaseCommonRepository<TutorialEntity>{
         let tutorial: TutorialEntity = await this.adminGetTutorial(id);
         tutorial.pages = this.sortPages(tutorial.pages);
         tutorial.pages = this.assignPageIndex(tutorial.pages);
-        let pageIndex = tutorial.pages.find(p => p.id === pageId).indexInTutorial;
-        tutorial.pages = this.moveElement(tutorial.pages, pageIndex, delta);
-        tutorial.lastEditor = user;
-        tutorial.updateDate = new Date();
+        let page: PageEntity = tutorial.pages.find(p => p.id === pageId);
+        if (page) {
+            let pageIndex = page.indexInTutorial;
+            tutorial.pages = this.moveElement(tutorial.pages, pageIndex, delta);
+            tutorial.lastEditor = user;
+            tutorial.updateDate = new Date();
+        }
         return this.repository.save(tutorial);
     }
 
@@ -122,9 +128,6 @@ export class TutorialRepository extends BaseCommonRepository<TutorialEntity>{
         }
         return false;
     }
-
-
-
 
     public async updateTutorialDateAndEditor(id: string, editor: UserEntity) {
         let tutorial: TutorialEntity = await this.adminGetTutorial(id);

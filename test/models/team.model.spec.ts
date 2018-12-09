@@ -1,7 +1,7 @@
-import { TeamModel } from '../../../server/models/classes/team.model';
+import { TeamModel } from '../../src/models/classes/team.model';
 import { assert } from 'chai';
 import 'mocha';
-import { RoleModel } from '../../../server/models/classes/role.model';
+import { RoleModel } from '../../src/models/classes/role.model';
 
 
 let team: TeamModel;

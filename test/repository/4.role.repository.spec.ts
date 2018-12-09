@@ -1,13 +1,13 @@
 import { assert } from 'chai';
 import 'mocha';
 import { TestDatabase } from './___db';
-import { RoleRepository } from '../../../server/db/repository/role.repository';
+import { RoleRepository } from '../../src/db/repository/role.repository';
 import { getCustomRepository } from 'typeorm';
-import { RoleEntity } from 'server/db/entity/role.entity';
-import { UserEntity } from '../../../server/db/entity/user.entity';
-import { TeamEntity } from '../../../server/db/entity/team.entity';
-import { UserRepository } from '../../../server/db/repository/user.repository';
-import { TeamRepository } from '../../../server/db/repository/team.repository';
+import { RoleEntity } from '../../src/db/entity/role.entity';
+import { UserEntity } from '../../src/db/entity/user.entity';
+import { TeamEntity } from '../../src/db/entity/team.entity';
+import { UserRepository } from '../../src/db/repository/user.repository';
+import { TeamRepository } from '../../src/db/repository/team.repository';
 
 let database: TestDatabase;
 let repo: RoleRepository;

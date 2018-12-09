@@ -4,14 +4,20 @@
    "description": "Backend of Cubing Italy's website",
    "repository": "https://github.com/CubingItaly/cubingitaly-backend.git",
    "devDependencies": {
+      "@types/chai": "^4.1.7",
       "@types/compression": "0.0.36",
       "@types/express": "^4.16.0",
       "@types/express-session": "^1.15.11",
       "@types/helmet": "0.0.42",
-      "@types/node": "^8.0.29",
-      "@types/passport": "^0.4.6",
+      "@types/mocha": "^5.2.5",
+      "@types/node": "^8.10.38",
+      "@types/passport": "^0.4.7",
+      "chai": "^4.2.0",
+      "chai-http": "^4.2.0",
+      "mocha": "^5.2.0",
       "mysql": "^2.14.1",
-      "nodemon": "^1.18.4",
+      "nodemon": "^1.18.7",
+      "nyc": "^13.1.0",
       "ts-node": "3.3.0",
       "typescript": "2.5.2"
    },
@@ -24,21 +30,23 @@
       "express-session": "^1.15.6",
       "express-validator": "^5.3.0",
       "forever": "^0.15.3",
-      "helmet": "^3.14.0",
-      "nodemailer": "^4.6.8",
+      "helmet": "^3.15.0",
+      "nodemailer": "^4.7.0",
       "nodemailer-mailgun-transport": "^1.4.0",
       "passport": "^0.4.0",
       "passport-wca": "^1.0.3",
       "path": "^0.12.7",
-      "pg": "^7.5.0",
+      "pg": "^7.7.1",
       "reflect-metadata": "^0.1.10",
-      "sanitize-html": "^1.19.1",
+      "sanitize-html": "^1.19.3",
       "typeorm": "0.2.8",
-      "typeorm-store": "^1.1.0"
+      "typeorm-store": "^1.2.0"
    },
    "scripts": {
       "start": "nodemon exec",
       "build": "tsc",
-      "postinstall": "npm run build"
+      "postinstall": "npm run build",
+      "test": "mocha -t 5000 -r ts-node/register ./test/**/*.spec.ts",
+      "twc": "nyc -r lcov -e .ts -x **/test/** mocha -t 5000 -r ts-node/register ./test/**/*.spec.ts && nyc report"
    }
 }

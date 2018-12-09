@@ -1,9 +1,9 @@
 import { assert } from 'chai';
 import 'mocha';
 import { TestDatabase } from './___db';
-import { TeamRepository } from '../../../server/db/repository/team.repository';
+import { TeamRepository } from '../../src/db/repository/team.repository';
 import { getCustomRepository } from 'typeorm';
-import { TeamEntity } from '../../../server/db/entity/team.entity';
+import { TeamEntity } from '../../src/db/entity/team.entity';
 
 let database: TestDatabase;
 let repo: TeamRepository;

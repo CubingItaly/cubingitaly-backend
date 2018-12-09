@@ -1,8 +1,8 @@
-import { UserModel } from '../../../server/models/classes/user.model';
+import { UserModel } from '../../src/models/classes/user.model';
 import { assert } from 'chai';
 import 'mocha';
-import { RoleModel } from '../../../server/models/classes/role.model';
-import { TeamModel } from '../../../server/models/classes/team.model';
+import { RoleModel } from '../../src/models/classes/role.model';
+import { TeamModel } from '../../src/models/classes/team.model';
 
 let user: UserModel;
 

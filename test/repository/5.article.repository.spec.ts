@@ -1,12 +1,12 @@
 import { assert } from 'chai';
 import 'mocha';
 import { TestDatabase } from './___db';
-import { ArticleRepository } from '../../../server/db/repository/article.repository';
+import { ArticleRepository } from '../../src/db/repository/article.repository';
 import { getCustomRepository, UpdateDateColumn } from 'typeorm';
-import { ArticleEntity } from '../../../server/db/entity/article.entity';
-import { UserRepository } from '../../../server/db/repository/user.repository';
-import { UserEntity } from '../../../server/db/entity/user.entity';
-import { ArticleCategoryEntity } from '../../../server/db/entity/category.entity';
+import { ArticleEntity } from '../../src/db/entity/article.entity';
+import { UserRepository } from '../../src/db/repository/user.repository';
+import { UserEntity } from '../../src/db/entity/user.entity';
+import { ArticleCategoryEntity } from '../../src/db/entity/category.entity';
 
 let db: TestDatabase;
 

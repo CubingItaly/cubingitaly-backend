@@ -1,10 +1,10 @@
 import 'mocha';
 import { assert } from 'chai';
-import { UserEntity } from '../../../server/db/entity/user.entity';
-import { TeamEntity } from '../../../server/db/entity/team.entity';
-import { RoleEntity } from '../../../server/db/entity/role.entity';
-import { RoleModel } from '../../../server/models/classes/role.model';
-import { UserModel } from '../../../server/models/classes/user.model';
+import { UserEntity } from '../../src/db/entity/user.entity';
+import { TeamEntity } from '../../src/db/entity/team.entity';
+import { RoleEntity } from '../../src/db/entity/role.entity';
+import { RoleModel } from '../../src/models/classes/role.model';
+import { UserModel } from '../../src/models/classes/user.model';
 
 
 describe('Test the user entity assimilate method', () => {

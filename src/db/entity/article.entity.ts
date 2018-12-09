@@ -155,19 +155,20 @@ export class ArticleEntity extends BaseEntity implements ITransformable<ArticleM
         article.title = this.title;
         article.summary = this.summary;
         article.isPublic = this.isPublic;
-        if (this.categories !== undefined && this.categories !== null) {
-            article.categories = this.categories.map((c: ArticleCategoryEntity) => c._transform());
-        }
         article.content = this.content;
+        article.publishDate = this.publishDate;
+        article.updateDate = this.updateDate;
+
         if (this.author !== undefined && this.author !== null) {
             article.author = this.author._transform();
         }
-
+        if (this.categories !== undefined && this.categories !== null) {
+            article.categories = this.categories.map((c: ArticleCategoryEntity) => c._transform());
+        }
         if (this.lastEditor !== undefined && this.lastEditor !== null) {
             article.lastEditor = this.lastEditor._transform();
         }
-        article.publishDate = this.publishDate;
-        article.updateDate = this.updateDate;
+
         return article;
     }
 }

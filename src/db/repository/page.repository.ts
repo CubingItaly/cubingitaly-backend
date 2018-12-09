@@ -66,7 +66,6 @@ export class PageRepository extends BaseCommonRepository<PageEntity>{
     public async adminUpdatePage(page: PageEntity, editor: UserEntity): Promise<PageEntity> {
         let exists: boolean = await this.checkIfPageExists(page.id);
         if (!exists) {
-            console.log("in here");
             page.author = editor;
             page.id = null;
         }

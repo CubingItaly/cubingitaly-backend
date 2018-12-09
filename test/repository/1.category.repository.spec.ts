@@ -1,9 +1,9 @@
 import { assert } from 'chai';
 import 'mocha';
 import { TestDatabase } from './___db';
-import { ArticleCategoryRepository } from '../../../server/db/repository/category.repository';
+import { ArticleCategoryRepository } from '../../src/db/repository/category.repository';
 import { getCustomRepository } from 'typeorm';
-import { ArticleCategoryEntity } from '../../../server/db/entity/category.entity';
+import { ArticleCategoryEntity } from '../../src/db/entity/category.entity';
 
 let database: TestDatabase;
 let repo: ArticleCategoryRepository;

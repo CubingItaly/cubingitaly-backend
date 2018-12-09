@@ -1,7 +1,7 @@
 import 'mocha';
 import { assert } from 'chai';
-import { ArticleCategoryEntity } from '../../../server/db/entity/category.entity';
-import { ArticleCategoryModel } from '../../../server/models/classes/category.model';
+import { ArticleCategoryEntity } from '../../src/db/entity/category.entity';
+import { ArticleCategoryModel } from '../../src/models/classes/category.model';
 
 describe('It test the transform function of the category', () => {
 

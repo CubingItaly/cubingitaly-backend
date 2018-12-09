@@ -1,12 +1,12 @@
 import { assert, expect } from 'chai';
 import 'mocha';
 import { TestDatabase } from './___db';
-import { PageRepository } from '../../../server/db/repository/page.repository';
+import { PageRepository } from '../../src/db/repository/page.repository';
 import { getCustomRepository, UpdateDateColumn } from 'typeorm';
-import { PageEntity } from '../../../server/db/entity/page.entity';
-import { UserRepository } from '../../../server/db/repository/user.repository';
-import { UserEntity } from '../../../server/db/entity/user.entity';
-import { TutorialEntity } from '../../../server/db/entity/tutorial.entity';
+import { PageEntity } from '../../src/db/entity/page.entity';
+import { UserRepository } from '../../src/db/repository/user.repository';
+import { UserEntity } from '../../src/db/entity/user.entity';
+import { TutorialEntity } from '../../src/db/entity/tutorial.entity';
 
 let db: TestDatabase;
 
@@ -126,7 +126,7 @@ describe('Test the page repo', () => {
         assert.equal(page[0].id, 101);
     });
 
-    it('Tries to admin update a page that doesn\'texist', async () => {
+    it('Tries to admin update a page that doesn\'t exist', async () => {
         let page: PageEntity = new PageEntity();
         page.title = "test";
         page.content = "content";
@@ -134,6 +134,13 @@ describe('Test the page repo', () => {
         page.indexInTutorial = -1;
         page = await repo.adminUpdatePage(page, user);
         assert.equal(page.id, 102);
+    });
+
+    it('Tries to update a page that doesn\'t exist', async () => {
+        let page: PageEntity = new PageEntity();
+        page.id = 203;
+        page = await repo.updatePage(page, user);
+        assert.equal(undefined, page);
     });
 
     after(async () => {

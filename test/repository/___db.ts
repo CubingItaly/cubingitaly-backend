@@ -1,6 +1,6 @@
 import { Connection, createConnection, BaseEntity } from "typeorm";
-import { BaseCommonRepository } from "../../../server/db/BaseCommonRepository";
-import { _BOOTSTRAPS } from "../../../server/db/__bootstraps";
+import { BaseCommonRepository } from "../../src/db/BaseCommonRepository";
+import { _BOOTSTRAPS } from "../../src/db/__bootstraps";
 
 export class TestDatabase {
 
@@ -18,8 +18,8 @@ export class TestDatabase {
             "synchronize": true,
             "logging": false,
             "entities": [
-                "server/db/entity/**/*.ts",
-                "server/db/entity/**/*.js"
+                "src/db/entity/**/*.ts",
+                "src/db/entity/**/*.js"
             ],
         });
         this.isConnected = true;
