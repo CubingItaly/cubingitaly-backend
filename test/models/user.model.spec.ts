@@ -421,3 +421,65 @@ describe('Check if user can edit pages', () => {
         })
     }
 }); 
+
+describe('Check if a user can edit FAQs', ()=>{
+    it('test for a normal user', () => {
+        let user: UserModel = generateUser(1, "name", "20010CUBI01", null);
+        assert.equal(user.canEditFAQs(), false);
+    });
+
+    let users: { team: string, isLeader: boolean, expected: boolean }[] =
+        [
+            { team: "admin", isLeader: false, expected: true },
+            { team: "board", isLeader: false, expected: true },
+            { team: "citi", isLeader: false, expected: true },
+            { team: "citq", isLeader: false, expected: true },
+            { team: "citc", isLeader: false, expected: true },
+            { team: "admin", isLeader: true, expected: true },
+            { team: "board", isLeader: true, expected: true },
+            { team: "citc", isLeader: true, expected: true },
+            { team: "citi", isLeader: true, expected: true },
+            { team: "citq", isLeader: true, expected: true },
+            { team: "fake", isLeader: true, expected: false },
+            { team: "fake", isLeader: false, expected: false },
+        ]
+
+    for (let u of users) {
+        it('test for a team member', () => {
+            let user: UserModel = generateUser(1, "name", "20010CUBI01", null);
+            user.roles = [generateRole(u.isLeader, u.team, 1)];
+            assert.equal(user.canEditFAQs(), u.expected);
+        })
+    }
+});
+
+describe('Check if a user can admin FAQs', ()=>{
+    it('test for a normal user', () => {
+        let user: UserModel = generateUser(1, "name", "20010CUBI01", null);
+        assert.equal(user.canAdminFAQs(), false);
+    });
+
+    let users: { team: string, isLeader: boolean, expected: boolean }[] =
+        [
+            { team: "admin", isLeader: false, expected: true },
+            { team: "board", isLeader: false, expected: true },
+            { team: "citi", isLeader: false, expected: false },
+            { team: "citq", isLeader: false, expected: true },
+            { team: "citc", isLeader: false, expected: false },
+            { team: "admin", isLeader: true, expected: true },
+            { team: "board", isLeader: true, expected: true },
+            { team: "citc", isLeader: true, expected: true },
+            { team: "citi", isLeader: true, expected: true },
+            { team: "citq", isLeader: true, expected: true },
+            { team: "fake", isLeader: false, expected: false },
+        ]
+
+    for (let u of users) {
+        it('test for a team member', () => {
+            let user: UserModel = generateUser(1, "name", "20010CUBI01", null);
+            user.roles = [generateRole(u.isLeader, u.team, 1)];
+            assert.equal(user.canAdminFAQs(), u.expected);
+        })
+    }
+});
+
