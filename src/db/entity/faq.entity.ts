@@ -17,7 +17,7 @@ export class FAQEntity extends BaseEntity implements ITransformable<FAQModel> {
     public content: string;
 
     @UpdateDateColumn()
-    private updateDate: Date;
+    public updateDate: Date;
 
     @ManyToOne(type => UserEntity, user => user.editedFAQs, { nullable: true })
     public editor: UserEntity;

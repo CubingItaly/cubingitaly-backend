@@ -54,4 +54,9 @@ export class FAQRepository extends BaseCommonRepository<FAQEntity> {
         return;
     }
 
+    public async getLastMod(): Promise<FAQEntity> {
+        return this.repository.createQueryBuilder("faq")
+            .orderBy("faq.updateDate", "DESC").limit(1).getOne();
+    }
+
 }

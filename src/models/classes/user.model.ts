@@ -230,6 +230,6 @@ export class UserModel {
     }
 
     public canAdminFAQs(): boolean {
-        return this.isAdmin() || this.isBoard() || this.isCITQ() || this.isLeader();
+        return this.isAdmin() || this.isBoard() || this.isCITQ() || this.isCITC() || this.isLeader();
     }
 }
