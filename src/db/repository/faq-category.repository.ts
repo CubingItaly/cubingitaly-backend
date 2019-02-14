@@ -9,11 +9,15 @@ export class FAQCategoryRepository extends BaseCommonRepository<FAQCategoryEntit
     private categories: { weight: number, name: string }[] = [
         {
             weight: 1,
-            name: "Prima di una competizione"
+            name: "Iscrizione alle competizioni"
         },
         {
             weight: 2,
-            name: "Durante una competizione"
+            name: "Svolgimento delle competizioni"
+        },
+        {
+            weight: 3,
+            name: "Concetti importanti"
         },
     ];
 

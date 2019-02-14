@@ -465,7 +465,7 @@ describe('Check if a user can admin FAQs', ()=>{
             { team: "board", isLeader: false, expected: true },
             { team: "citi", isLeader: false, expected: false },
             { team: "citq", isLeader: false, expected: true },
-            { team: "citc", isLeader: false, expected: false },
+            { team: "citc", isLeader: false, expected: true },
             { team: "admin", isLeader: true, expected: true },
             { team: "board", isLeader: true, expected: true },
             { team: "citc", isLeader: true, expected: true },

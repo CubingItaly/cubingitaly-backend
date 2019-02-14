@@ -19,12 +19,12 @@ describe('Test the faq category repo', () => {
 
     it('Test the init and getCategories methods', async () => {
         let categories: FAQCategoryEntity[] = await repo.getCategories();
-        assert.equal(2, categories.length);
+        assert.equal(3, categories.length);
         assert.equal(2, categories[1].weight);
 
         await repo.InitDefaults();
         categories = await repo.getCategories();
-        assert.equal(2, categories.length);
+        assert.equal(3, categories.length);
     })
 
 
