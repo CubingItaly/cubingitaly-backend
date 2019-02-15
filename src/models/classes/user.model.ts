@@ -104,9 +104,18 @@ export class UserModel {
     }
 
     private isLeader(): boolean {
-        return (this.roles.findIndex(r => r.isLeader === true) >= 0);
+        return (this.roles.findIndex(r => (r.isLeader === true && this.teamExists(r.team))) >= 0);
     }
 
+    private teamExists(t: string): boolean {
+        let teams: string[] = ["admin", "citi", "citq", "citc", "board"];
+        for (let team of teams) {
+            if (team === t) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
    * Checks whether the use belongs to the admin team
@@ -212,4 +221,15 @@ export class UserModel {
         return this.canCreateTutorials() || this.isCITI() || this.isCITQ() || this.isCITC();
     }
     /* End of tutorial permissions */
+
+
+    /* Start of FAQ permissions */
+
+    public canEditFAQs(): boolean {
+        return this.canAdminFAQs() || this.isCITI() || this.isCITC();
+    }
+
+    public canAdminFAQs(): boolean {
+        return this.isAdmin() || this.isBoard() || this.isCITQ() || this.isCITC() || this.isLeader();
+    }
 }

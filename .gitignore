@@ -10,3 +10,6 @@ temp/
 ormconfig.json
 src/secrets/keys.ts
 coverage/
+
+.nyc_output
+build

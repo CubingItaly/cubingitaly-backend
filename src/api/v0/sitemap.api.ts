@@ -5,6 +5,8 @@ import { ArticleEntity } from "../../db/entity/article.entity";
 import { ArticleRepository } from "../../db/repository/article.repository";
 import { TutorialRepository } from "../../db/repository/tutorial.repository";
 import { TutorialEntity } from "../../db/entity/tutorial.entity";
+import { FAQRepository } from "../../db/repository/faq.repository";
+import { FAQEntity } from "../../db/entity/faq.entity";
 //# we need this because otherwise passport doesn't work
 const router: Router = Router();
 
@@ -17,7 +19,7 @@ class urlClass {
     public import(source: Object, base: string) {
         this.loc = websiteBase + typeBase[base] + source['id'];
         let temp: Date = source['updateDate'];
-        this.lastmod= temp.toISOString();
+        this.lastmod = temp.toISOString();
     }
 }
 
@@ -47,6 +49,14 @@ function getStaticPages(): urlClass[] {
     return pages;
 }
 
+async function getFAQPage(): Promise<urlClass> {
+    let url: urlClass = new urlClass();
+    url.loc = "https://www.cubingitaly.org/faq";
+    let tempFAQ: FAQEntity = await getCustomRepository(FAQRepository).getLastMod();
+    url.lastmod = tempFAQ.updateDate.toISOString();
+    return url;
+}
+
 function createStaticPage(url: string): urlClass {
     let temp: urlClass = new urlClass();
     temp.loc = url;
@@ -55,6 +65,9 @@ function createStaticPage(url: string): urlClass {
 
 router.get("/", async (req, res) => {
     let pages: urlClass[] = getStaticPages();
+
+    let faq: urlClass = await getFAQPage();
+    pages.push(faq);
 
     let articles: ArticleEntity[] = await (getArticlesRepo()).getPublicArticles(0, 99999);
 
