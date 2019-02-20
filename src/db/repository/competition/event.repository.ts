@@ -29,7 +29,7 @@ export class EventRepository extends BaseCommonRepository<EventEntity> {
         }
     }
 
-    private async getIfEventExists(id: string): Promise<boolean> {
+    public async getIfEventExists(id: string): Promise<boolean> {
         let count: number = await this.repository.count({ id: id });
         return count > 0;
     }

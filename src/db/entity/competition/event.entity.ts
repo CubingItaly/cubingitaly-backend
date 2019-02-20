@@ -1,6 +1,7 @@
 import { ITransformable } from "../../transformable";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, UpdateDateColumn, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, UpdateDateColumn, PrimaryColumn, ManyToMany } from "typeorm";
 import { EventModel } from '../../../models/classes/competition/event.model';
+import { CompetitionEntity } from "../competition.entity";
 
 @Entity()
 export class EventEntity extends BaseEntity implements ITransformable<EventModel> {
@@ -14,6 +15,8 @@ export class EventEntity extends BaseEntity implements ITransformable<EventModel
     @Column({ nullable: false })
     public weight: number;
 
+    @ManyToMany(type => CompetitionEntity, competition => competition.events)
+    public competitions: CompetitionEntity[];
 
     _transform(): EventModel {
         let model: EventModel = new EventModel();

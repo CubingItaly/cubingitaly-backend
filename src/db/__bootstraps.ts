@@ -13,6 +13,8 @@ import { FAQCategoryRepository } from './repository/faq-category.repository';
 import { EventRepository } from './repository/competition/event.repository';
 import { TravelMeanRepository } from './repository/competition/travelmean.repository';
 import { PaymentMeanRepository } from './repository/competition/paymentmean.repository';
+import { DirectionsRepository } from "./repository/competition/directions.repository";
+import { CompetitionRepository } from "./repository/competition.repository";
 //import { DirectionsRepository } from './repository/competition/directions.repository';
 
 /**
@@ -35,6 +37,7 @@ export function _BOOTSTRAPS(): BaseCommonRepository<BaseEntity>[] {
     getCustomRepository(EventRepository),
     getCustomRepository(TravelMeanRepository),
     getCustomRepository(PaymentMeanRepository),
-    //  getCustomRepository(DirectionsRepository)
+    getCustomRepository(CompetitionRepository),
+    getCustomRepository(DirectionsRepository)
   ];
 }

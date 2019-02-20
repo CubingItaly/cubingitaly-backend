@@ -15,7 +15,7 @@ export class RefundPolicyEntity extends BaseEntity implements ITransformable<Ref
     @Column({ nullable: false })
     public deadline: Date;
 
-    @ManyToOne(type=> RegistrationEntity, registration=>registration.policies)
+    @ManyToOne(type=> RegistrationEntity, registration=>registration.refundPolicy)
     public registration: RegistrationEntity;
 
 

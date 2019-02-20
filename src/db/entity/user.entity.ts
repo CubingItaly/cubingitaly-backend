@@ -1,10 +1,11 @@
-import { Entity, BaseEntity, PrimaryColumn, Column, OneToMany, JoinTable } from "typeorm";
+import { Entity, BaseEntity, PrimaryColumn, Column, OneToMany, JoinTable, ManyToMany } from "typeorm";
 import { ITransformable } from "../transformable";
 import { UserModel } from "../../models/classes/user.model";
 import { RoleEntity } from "./role.entity";
 import { ArticleEntity } from "./article.entity";
 import { PageEntity } from "./page.entity";
 import { FAQEntity } from "./faq.entity";
+import { CompetitionEntity } from "./competition.entity";
 
 
 /**
@@ -84,10 +85,8 @@ export class UserEntity extends BaseEntity implements ITransformable<UserModel>{
     @OneToMany(type => ArticleEntity, article => article.lastEditor, { nullable: true })
     public editedArticles: ArticleEntity[];
 
-
     @OneToMany(type => PageEntity, page => page.author, { nullable: true })
     public createdPages: PageEntity[];
-
 
     @OneToMany(type => PageEntity, page => page.lastEditor, { nullable: true })
     public editedPages: PageEntity[];
@@ -95,6 +94,11 @@ export class UserEntity extends BaseEntity implements ITransformable<UserModel>{
     @OneToMany(type => FAQEntity, faq => faq.editor, { nullable: true })
     public editedFAQs: FAQEntity[];
 
+    @ManyToMany(type => CompetitionEntity, competition => competition.delegates)
+    public delegatedCompetitions: CompetitionEntity[];
+
+    @ManyToMany(type => CompetitionEntity, competition => competition.organizers)
+    public organizedCompetitions: CompetitionEntity[];
 
     /**
      * Takes a UserModel in input and copies its data.

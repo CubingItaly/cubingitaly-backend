@@ -1,5 +1,4 @@
 import { autoserialize, autoserializeAs } from 'cerialize';
-import { DirectionsModel } from './competition/directions.model';
 import { UserModel } from './user.model';
 import { EventModel } from './competition/event.model';
 
@@ -17,10 +16,10 @@ export class CompetitionModel {
     @autoserialize
     public isHidden: boolean;
 
-    @autoserialize
+    @autoserializeAs(Date)
     public startDate: Date;
 
-    @autoserialize
+    @autoserializeAs(Date)
     public endDate: Date;
 
     @autoserialize
@@ -50,9 +49,6 @@ export class CompetitionModel {
     @autoserialize
     public coordinates?: string;
 
-    @autoserializeAs(DirectionsModel)
-    public directions?: DirectionsModel[];
-
     @autoserialize
     public logoURL?: string;
 
@@ -62,16 +58,38 @@ export class CompetitionModel {
     @autoserialize
     public contactEmail: string;
 
+    @autoserialize
+    public extraInformation?: string;
+
     @autoserializeAs(UserModel)
     public organizers?: UserModel[];
 
     @autoserializeAs(UserModel)
     public delegates?: UserModel[];
 
-    @autoserialize
-    public extraInformation?: string;
-
     @autoserializeAs(EventModel)
-    public events?: EventModel;
+    public events?: EventModel[];
+
+    public hasDelegate(id: number): boolean {
+        let index: number = this.delegates.findIndex((u: UserModel) => u.id === id);
+        return index >= 0;
+    }
+
+    public hasOrganizer(id: number): boolean {
+        let index: number = this.organizers.findIndex((u: UserModel) => u.id === id);
+        return index >= 0;
+    }
+
+    public getCompDate(): string {
+        if ((this.startDate.getDate() === this.endDate.getDate()) && (this.startDate.getMonth() === this.endDate.getMonth()) && (this.startDate.getFullYear() === this.endDate.getFullYear())) {
+            return this.startDate.toLocaleDateString("it-it", { day: "numeric", year: "numeric", month: "long" });
+        } else {
+            if (this.startDate.getMonth() < this.endDate.getMonth()) {
+                return (this.startDate.toLocaleDateString("it-it", { day: "numeric", month: "long" })) + " - " + (this.endDate.toLocaleDateString("it-it", { day: "numeric", month: "long" })) + " " + (this.startDate.toLocaleDateString("it-it", { year: "numeric" }));
+            } else {
+                return (this.startDate.toLocaleDateString("it-it", { day: "numeric" })) + "-" + (this.endDate.toLocaleDateString("it-it", { day: "numeric", year: "numeric", month: "long" }));
+            }
+        }
+    }
 
 }
