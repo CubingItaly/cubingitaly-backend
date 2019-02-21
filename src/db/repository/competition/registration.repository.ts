@@ -21,11 +21,6 @@ export class RegistrationRepository extends BaseCommonRepository<RegistrationEnt
         return this.repository.findOne({ competition: competition });
     }
 
-    public async deleteRegistration(id: number): Promise<void> {
-        await this.repository.delete(id);
-        return;
-    }
-
     public async updateRegistration(registration: RegistrationEntity): Promise<RegistrationEntity> {
         let old: RegistrationEntity = await this.getRegistration(registration.id);
         if (old) {

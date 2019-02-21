@@ -2,6 +2,8 @@ import { BaseCommonRepository } from "../BaseCommonRepository";
 import { EntityRepository, getCustomRepository } from "typeorm";
 import { CompetitionEntity } from "../entity/competition.entity";
 import { DirectionsRepository } from "./competition/directions.repository";
+import { RegistrationRepository } from "./competition/registration.repository";
+import { RegistrationEntity } from "../entity/competition/registration.entity";
 
 
 @EntityRepository(CompetitionEntity)
@@ -27,7 +29,9 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
     }
 
     public async createCompetition(competition: CompetitionEntity): Promise<CompetitionEntity> {
-        return this.repository.save(competition);
+        let comp: CompetitionEntity = await this.repository.save(competition);
+        await getCustomRepository(RegistrationRepository).createRegistration(comp, new RegistrationEntity());
+        return comp;
     }
 
     public async editorUpdateCompetition(competition: CompetitionEntity): Promise<CompetitionEntity> {

@@ -7,6 +7,7 @@ import { getUser, verifyLogin } from "../../shared/login.utils";
 import { sanitize } from "./sanitizer";
 import { Deserialize } from "cerialize";
 import { CompetitionRepository } from '../../db/repository/competition.repository';
+import { RegistrationRepository } from '../../db/repository/competition/registration.repository';
 import { CompetitionEntity } from "../../db/entity/competition.entity";
 import { CompetitionModel } from "../../models/classes/competition.model";
 import { UserModel } from "../../models/classes/user.model";
@@ -14,6 +15,14 @@ import { EventRepository } from "../../db/repository/competition/event.repositor
 import { EventEntity } from "../../db/entity/competition/event.entity";
 import { EventModel } from "../../models/classes/competition/event.model";
 import { UserRepository } from "../../db/repository/user.repository";
+import { RegistrationEntity } from "../../db/entity/competition/registration.entity";
+import { RegistrationModel } from "../../models/classes/competition/registration.model";
+import { TravelMeanRepository } from "../../db/repository/competition/travelmean.repository";
+import { TravelMeanEntity } from "../../db/entity/competition/travelmean.entity";
+import { TravelMeanModel } from "../../models/classes/competition/travelmean.model";
+import { PaymentMeanRepository } from "../../db/repository/competition/paymentmean.repository";
+import { PaymentMeanEntity } from "../../db/entity/competition/paymentmean.entity";
+import { PaymentMeanModel } from "../../models/classes/competition/paymentmean.model";
 
 const router: Router = Router();
 
@@ -21,6 +30,10 @@ const attributes: string[] = ["id", "name", "startDate", "endDate", "country", "
 
 function getCompetitionRepository(): CompetitionRepository {
     return getCustomRepository(CompetitionRepository);
+}
+
+function getRegistrationRepository(): RegistrationRepository {
+    return getCustomRepository(RegistrationRepository);
 }
 
 function canCreateCompetitions(req, res, next) {
@@ -58,7 +71,7 @@ async function idAlreadyExist(req, res, next) {
 
 async function canEditCompetition(req, res, next) {
     let user: UserModel = getUser(req);
-    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.body.competition.id);
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
     if (user.canEditCompetition(competition._transform())) {
         next();
     } else {
@@ -83,7 +96,7 @@ async function idExists(req, res, next) {
     if (paramId === id && exist) {
         next();
     } else {
-        sendError(res, 404, "Bad request. The request is malformed.");
+        sendError(res, 404, "Bad request. The requested resource doesn't exist.");
     }
 }
 
@@ -145,6 +158,20 @@ router.get("/events", async (req, res) => {
     let eventsRepo: EventRepository = getCustomRepository(EventRepository);
     let events: EventEntity[] = await eventsRepo.getEvents();
     let model: EventModel[] = events.map((e: EventEntity) => e._transform());
+    res.status(200).json(model);
+});
+
+router.get("/travelmeans", async (req, res) => {
+    let meanRepo: TravelMeanRepository = getCustomRepository(TravelMeanRepository);
+    let means: TravelMeanEntity[] = await meanRepo.getTravelMeans();
+    let model: TravelMeanModel[] = means.map((m: TravelMeanEntity) => m._transform());
+    res.status(200).json(model);
+});
+
+router.get("/paymentmeans", async (req, res) => {
+    let meanRepo: PaymentMeanRepository = getCustomRepository(PaymentMeanRepository);
+    let means: PaymentMeanEntity[] = await meanRepo.getPaymentMeans();
+    let model: PaymentMeanModel[] = means.map((m: PaymentMeanEntity) => m._transform());
     res.status(200).json(model);
 });
 
@@ -219,6 +246,50 @@ router.delete("/:id", verifyLogin, canCreateCompetitions, idExists, async (req, 
     let id: string = req.params.id;
     await getCompetitionRepository().deleteCompetition(id);
     res.status(200).json({});
+});
+
+function registrationIsInTheRequest(req, res, next) {
+    let registration: RegistrationModel = Deserialize(req.body.registration, RegistrationModel);
+    if (registration && registration.id) {
+        next();
+    } else {
+        sendError(res, 400, "Bad request. The request is malformed.")
+    }
+}
+
+router.get("/:id/registrations", async (req, res) => {
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    let user: UserModel = getUser(req);
+    if (competition && (competition.isOfficial || user && user.canEditCompetition(competition._transform()))) {
+        let registration: RegistrationEntity = await getRegistrationRepository().getRegistrationByCompetition(competition);
+        res.status(200).json(registration._transform());
+    } else {
+        sendError(res, 404, "Bad request. The requested resource doesn't exist.");
+    }
+});
+
+router.put("/:id/registrations", verifyLogin, canEditCompetition, registrationIsInTheRequest, async (req, res) => {
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    if (competition) {
+        let repo: RegistrationRepository = getRegistrationRepository();
+        let oldReg = await repo.getRegistrationByCompetition(competition);
+        let registration: RegistrationModel = Deserialize(req.body.registration, RegistrationModel);
+        if (oldReg && oldReg.id === registration.id) {
+            let entity: RegistrationEntity = new RegistrationEntity();
+            entity._assimilate(registration);
+            try {
+                entity = await repo.updateRegistration(entity);
+                res.status(200).json(entity._transform());
+            } catch (e) {
+                sendError(res, 400, "Bad request. The request is malformed and some parameters are missing.");
+            }
+
+        } else {
+            sendError(res, 404, "Bad request. The requested resource doesn't exist.");
+        }
+    } else {
+        sendError(res, 404, "Bad request. The requested resource doesn't exist.");
+    }
 });
 
 export { router }

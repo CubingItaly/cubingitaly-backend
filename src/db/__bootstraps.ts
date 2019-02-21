@@ -15,7 +15,7 @@ import { TravelMeanRepository } from './repository/competition/travelmean.reposi
 import { PaymentMeanRepository } from './repository/competition/paymentmean.repository';
 import { DirectionsRepository } from "./repository/competition/directions.repository";
 import { CompetitionRepository } from "./repository/competition.repository";
-//import { DirectionsRepository } from './repository/competition/directions.repository';
+import { RegistrationRepository } from './repository/competition/registration.repository';
 
 /**
  * Holds all the custom repository that needs to run a custom function check when the database connection is available (init).
@@ -38,6 +38,7 @@ export function _BOOTSTRAPS(): BaseCommonRepository<BaseEntity>[] {
     getCustomRepository(TravelMeanRepository),
     getCustomRepository(PaymentMeanRepository),
     getCustomRepository(CompetitionRepository),
-    getCustomRepository(DirectionsRepository)
+    getCustomRepository(DirectionsRepository),
+    getCustomRepository(RegistrationRepository)
   ];
 }

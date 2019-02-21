@@ -17,7 +17,7 @@ export class RegistrationModel {
     public registrationClose: Date;
 
     @autoserialize
-    public isRegistrationFree: boolean;
+    public isRegistrationPaid: boolean;
 
     @autoserialize
     public registrationFee?: number;

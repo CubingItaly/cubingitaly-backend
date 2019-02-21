@@ -1,5 +1,5 @@
 import { ITransformable } from "../../transformable";
-import { BaseEntity, Column, Entity, PrimaryColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, ManyToMany, OneToOne } from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, ManyToMany, OneToOne, JoinTable, JoinColumn } from "typeorm";
 import { RegistrationModel } from '../../../models/classes/competition/registration.model';
 import { RefundPolicyEntity } from "./refundpolicy.entity";
 import { PaymentMeanEntity } from "./paymentmean.entity";
@@ -13,76 +13,79 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
     @PrimaryGeneratedColumn()
     public id: number;
 
-    @Column({ nullable: false })
+    @Column({ default: 0 })
     public competitorsLimit: number;
 
-    @Column({ nullable: false })
+    @Column({ nullable: true })
     public registrationOpen: Date;
 
-    @Column({ nullable: false })
+    @Column({ nullable: true })
     public registrationClose: Date;
 
-    @Column({ nullable: false })
-    public isRegistrationFree: boolean;
+    @Column({ default: false })
+    public isRegistrationPaid: boolean;
 
-    @Column()
+    @Column({ nullable: true })
     public registrationFee: number;
 
-    @Column({ nullable: false })
+    @Column({ default: false })
     public newcomerDiscount: boolean;
 
-    @Column()
+    @Column({ nullable: true })
     public newcomerFee: number;
 
-    @Column({ type: "text" })
+    @Column({ type: "text", nullable: true })
     public newcomerDetails: string;
 
-    @Column({ nullable: false })
+    @Column({ default: false })
     public registrationAtTheVenue: boolean;
 
-    @Column()
+    @Column({ nullable: true })
     public atTheVenueFee: number;
 
-    @Column({ type: "text" })
+    @Column({ type: "text", nullable: true })
     public atTheVenueDetails: string;
 
-    @Column()
+    @Column({ nullable: true })
     public maxNumberOfGuests: number;
 
-    @Column({ nullable: false })
+    @Column({ default: false })
     public guestsPay: boolean;
 
-    @Column()
+    @Column({ nullable: true })
     public guestsFee: number;
 
-    @Column({ nullable: false })
+    @Column({ default: false })
     public guestsNeedToRegister: boolean;
 
-    @Column({ type: "text" })
+    @Column({ type: "text", nullable: true })
     public guestsDetails: string;
 
-    @Column({ nullable: false })
+    @Column({ default: false })
     public isLimitReached: boolean;
-    PaymentMean
-    @Column({ nullable: false })
+
+    @Column({ default: false })
     public isRegistrationOpen: boolean;
 
-    @Column()
+    @Column({ nullable: true })
     public paypalLink: string;
 
-    @Column({ nullable: false })
+    @Column({ default: false })
     public refundAvailable: boolean;
 
-    @Column({ type: "text" })
+    @Column({ type: "text", nullable: true })
     public registrationExtraInfo: string;
 
     @OneToMany(type => RefundPolicyEntity, policy => policy.registration, { eager: true })
+    @JoinTable()
     public refundPolicy: RefundPolicyEntity[];
 
     @ManyToMany(type => PaymentMeanEntity, paymentMean => paymentMean.registrations, { eager: true })
+    @JoinTable()
     public paymentMeans: PaymentMeanEntity[];
 
     @OneToOne(type => CompetitionEntity, competition => competition.registration)
+    @JoinColumn()
     public competition: CompetitionEntity;
 
     _transform(): RegistrationModel {
@@ -91,7 +94,7 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
         model.competitorsLimit = this.competitorsLimit;
         model.registrationOpen = this.registrationOpen;
         model.registrationClose = this.registrationClose;
-        model.isRegistrationFree = this.isRegistrationFree;
+        model.isRegistrationPaid = this.isRegistrationPaid;
         model.registrationFee = this.registrationFee;
         model.newcomerDiscount = this.newcomerDiscount;
         model.newcomerFee = this.newcomerFee;
@@ -124,7 +127,7 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
         this.competitorsLimit = origin.competitorsLimit;
         this.registrationOpen = origin.registrationOpen;
         this.registrationClose = origin.registrationClose;
-        this.isRegistrationFree = origin.isRegistrationFree;
+        this.isRegistrationPaid = origin.isRegistrationPaid;
         this.registrationFee = origin.registrationFee;
         this.newcomerDiscount = origin.newcomerDiscount;
         this.newcomerFee = origin.newcomerFee;
