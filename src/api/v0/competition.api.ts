@@ -383,11 +383,9 @@ router.put("/:id/directions/:did", verifyLogin, canEditCompetition, directionsId
         let entity: DirectionsEntity = new DirectionsEntity();
         entity._assimilate(directions);
         try {
-            console.log(entity);
             entity = await repo.updateDirection(entity);
             res.status(200).json(entity._transform());
         } catch (e) {
-            console.log(e);
             sendError(res, 400, "2 Bad request. The request is malformed and some parameters are missing.");
         }
     } else {
