@@ -24,6 +24,7 @@ export class RegistrationRepository extends BaseCommonRepository<RegistrationEnt
     public async updateRegistration(registration: RegistrationEntity): Promise<RegistrationEntity> {
         let old: RegistrationEntity = await this.getRegistration(registration.id);
         if (old) {
+            registration.isComplete = true;
             return this.repository.save(registration);
         } else {
             return;

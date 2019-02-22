@@ -1,5 +1,5 @@
 import { ITransformable } from "../../transformable";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinTable } from "typeorm";
 import { RefundPolicyModel } from '../../../models/classes/competition/refundpolicy.model';
 import { RegistrationEntity } from "./registration.entity";
 
@@ -16,6 +16,7 @@ export class RefundPolicyEntity extends BaseEntity implements ITransformable<Ref
     public deadline: Date;
 
     @ManyToOne(type=> RegistrationEntity, registration=>registration.refundPolicy)
+    @JoinTable()
     public registration: RegistrationEntity;
 
 

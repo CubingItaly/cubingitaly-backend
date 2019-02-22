@@ -10,10 +10,10 @@ export class RegistrationModel {
     @autoserialize
     public competitorsLimit: number;
 
-    @autoserialize
+    @autoserializeAs(Date)
     public registrationOpen: Date;
 
-    @autoserialize
+    @autoserializeAs(Date)
     public registrationClose: Date;
 
     @autoserialize

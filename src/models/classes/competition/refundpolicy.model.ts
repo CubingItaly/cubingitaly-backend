@@ -1,4 +1,4 @@
-import { autoserialize } from 'cerialize';
+import { autoserialize, autoserializeAs } from 'cerialize';
 
 export class RefundPolicyModel {
 
@@ -8,7 +8,7 @@ export class RefundPolicyModel {
     @autoserialize
     public percentage: number;
 
-    @autoserialize
+    @autoserializeAs(Date)
     public deadline: Date;
 
 }

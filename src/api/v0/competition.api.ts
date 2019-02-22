@@ -23,6 +23,9 @@ import { TravelMeanModel } from "../../models/classes/competition/travelmean.mod
 import { PaymentMeanRepository } from "../../db/repository/competition/paymentmean.repository";
 import { PaymentMeanEntity } from "../../db/entity/competition/paymentmean.entity";
 import { PaymentMeanModel } from "../../models/classes/competition/paymentmean.model";
+import { DirectionsEntity } from "../../db/entity/competition/directions.entity";
+import { DirectionsRepository } from "../../db/repository/competition/directions.repository";
+import { DirectionsModel } from "../../models/classes/competition/directions.model";
 
 const router: Router = Router();
 
@@ -34,6 +37,10 @@ function getCompetitionRepository(): CompetitionRepository {
 
 function getRegistrationRepository(): RegistrationRepository {
     return getCustomRepository(RegistrationRepository);
+}
+
+function getDirectionsRepository(): DirectionsRepository {
+    return getCustomRepository(DirectionsRepository);
 }
 
 function canCreateCompetitions(req, res, next) {
@@ -179,7 +186,7 @@ router.get("/:id", async (req, res) => {
     let repo: CompetitionRepository = getCompetitionRepository();
     let entity: CompetitionEntity = await repo.getCompetition(req.params.id);
     let user: UserModel = getUser(req);
-    if (entity.isOfficial || (user && user.canViewCompetition(entity._transform()))) {
+    if (entity && entity.isOfficial || (user && user.canViewCompetition(entity._transform()))) {
         res.status(200).json(entity._transform());
     } else {
         sendError(res, 404, "The requested resource does not exist.");
@@ -268,7 +275,34 @@ router.get("/:id/registrations", async (req, res) => {
     }
 });
 
-router.put("/:id/registrations", verifyLogin, canEditCompetition, registrationIsInTheRequest, async (req, res) => {
+async function allParametersAreOk(req, res, next) {
+    let r: RegistrationModel = Deserialize(req.body.registration, RegistrationModel);
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    let ok = true && r.competitorsLimit >= 20;
+    ok = ok && (r.registrationOpen.getTime() <= r.registrationClose.getTime());
+    ok = ok && r.registrationClose.getTime() <= competition._transform().startDate.getTime();
+    ok = ok && (!r.isRegistrationPaid || (r.isRegistrationPaid && r.registrationFee > 0));
+    ok = ok && ((!r.isRegistrationPaid || (r.isRegistrationPaid
+        && (!r.newcomerDiscount || (r.newcomerDiscount && r.newcomerFee > 0)))));
+    ok = ok && (!r.registrationAtTheVenue || (r.registrationAtTheVenue && r.atTheVenueFee > 0));
+    ok = ok && (!r.guestsPay || (r.guestsPay && r.guestsFee > 0));
+    ok = ok && (!r.isRegistrationPaid || (r.isRegistrationPaid &&
+        (r.paymentMeans.findIndex((p: PaymentMeanModel) => p.id === "paypal") >= 0 || r.paymentMeans.findIndex((p: PaymentMeanModel) => p.id === "cc") >= 0 || r.paymentMeans.findIndex((p: PaymentMeanModel) => p.id === "cash") >= 0)));
+    ok = ok && (!r.isRegistrationPaid || (r.isRegistrationPaid
+        && (!r.paymentMeans.find((p: PaymentMeanModel) => p.id === "paypal")
+            || (r.paymentMeans.find((p: PaymentMeanModel) => p.id === "paypal") && r.paypalLink.length > 0))));
+    ok = ok && (!r.isRegistrationPaid || (r.isRegistrationPaid && (!((r.paymentMeans.find((p: PaymentMeanModel) => p.id === "paypal"))
+        || r.paymentMeans.find((p: PaymentMeanModel) => p.id === "cc"))
+        || (((r.paymentMeans.find((p: PaymentMeanModel) => p.id === "paypal")) || r.paymentMeans.find((p: PaymentMeanModel) => p.id === "cc"))
+            && (!r.refundAvailable || (r.refundAvailable && r.refundPolicy.length > 0))))));
+    if (ok) {
+        next();
+    } else {
+        sendError(res, 400, "Bad request. The request is malformed and some parameters doesn't respect the requirements");
+    }
+}
+
+router.put("/:id/registrations", verifyLogin, canEditCompetition, registrationIsInTheRequest, allParametersAreOk, async (req, res) => {
     let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
     if (competition) {
         let repo: RegistrationRepository = getRegistrationRepository();
@@ -291,5 +325,92 @@ router.put("/:id/registrations", verifyLogin, canEditCompetition, registrationIs
         sendError(res, 404, "Bad request. The requested resource doesn't exist.");
     }
 });
+
+
+router.get("/:id/directions", async (req, res) => {
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    let user = getUser(req);
+    if (competition && (competition.isOfficial || (user && user.canEditCompetition(competition._transform())))) {
+        let directions: DirectionsEntity[] = await getDirectionsRepository().getDirections(competition);
+        let model: DirectionsModel[] = directions.map((d: DirectionsEntity) => d._transform());
+        res.status(200).json(model);
+    } else {
+        sendError(res, 404, "Bad request. The requested resource doesn't exist.");
+    }
+});
+
+function directionsHasNoId(req, res, next) {
+    let directions: DirectionsModel = Deserialize(req.body.directions, DirectionsModel);
+    if (directions && !directions.id) {
+        next();
+    } else {
+        sendError(res, 400, "1 Bad request. The request is malformed and some parameters are missing.");
+    }
+}
+
+router.post("/:id/directions", verifyLogin, canEditCompetition, directionsHasNoId, async (req, res) => {
+    let directions: DirectionsModel = Deserialize(req.body.directions, DirectionsModel);
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    if (competition) {
+        let entity: DirectionsEntity = new DirectionsEntity();
+        entity._assimilate(directions);
+        try {
+            entity = await getDirectionsRepository().createDirection(entity, competition);
+            res.status(200).json(entity._transform());
+        } catch (e) {
+            sendError(res, 400, "2 Bad request. The request is malformed and some parameters are missing.");
+        }
+    } else {
+        sendError(res, 404, "3 Bad request. The requested resource doesn't exist.");
+    }
+});
+
+function directionsIdMatch(req, res, next) {
+    let directions: DirectionsModel = Deserialize(req.body.directions, DirectionsModel);
+    if (directions && directions.id === Number(req.params.did)) {
+        next();
+    } else {
+        sendError(res, 400, "Bad request. 1 The request is malformed and some parameters are missing.");
+    }
+}
+
+router.put("/:id/directions/:did", verifyLogin, canEditCompetition, directionsIdMatch, async (req, res) => {
+    let directions: DirectionsModel = Deserialize(req.body.directions, DirectionsModel);
+    let repo: DirectionsRepository = getDirectionsRepository();
+    let old: DirectionsEntity = await repo.getDirection(req.params.did);
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    if (competition && old) {
+        let entity: DirectionsEntity = new DirectionsEntity();
+        entity._assimilate(directions);
+        try {
+            console.log(entity);
+            entity = await repo.updateDirection(entity);
+            res.status(200).json(entity._transform());
+        } catch (e) {
+            console.log(e);
+            sendError(res, 400, "2 Bad request. The request is malformed and some parameters are missing.");
+        }
+    } else {
+        sendError(res, 404, "3 Bad request. The requested resource doesn't exist.");
+    }
+});
+
+router.delete("/:id/directions/:did", verifyLogin, canEditCompetition, async (req, res) => {
+    let repo: DirectionsRepository = getDirectionsRepository();
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    if (competition) {
+        let directions: DirectionsEntity[] = await repo.getDirectionsByCompetition(competition);
+        if (directions.findIndex((d: DirectionsEntity) => d.id === req.params.did)) {
+            await repo.deleteDirection(req.params.did);
+            res.status(200).send({});
+        } else {
+            sendError(res, 404, "Bad request. The requested resource doesn't exist.");
+        }
+    } else {
+        sendError(res, 404, "Bad request. The requested resource doesn't exist.");
+    }
+});
+
+
 
 export { router }

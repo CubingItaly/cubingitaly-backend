@@ -26,21 +26,16 @@ export class DirectionsRepository extends BaseCommonRepository<DirectionsEntity>
     }
 
     public async updateDirection(direction: DirectionsEntity): Promise<DirectionsEntity> {
-        let old: DirectionsEntity = await this.getDirection(direction.id);
-        if (old && old.competition.id === direction.competition.id) {
-            old.directions = direction.directions;
-            old.mean = direction.mean;
-            return this.repository.save(old);
-        } else {
-            return;
-        }
+        return this.repository.save(direction);
     }
 
-    public async createDirection(direction: DirectionsEntity): Promise<DirectionsEntity> {
-        if (direction.id) {
-            return;
-        } else {
-            return this.repository.save(direction);
-        }
+    public async createDirection(direction: DirectionsEntity, competition: CompetitionEntity): Promise<DirectionsEntity> {
+        direction.competition = competition;
+        return this.repository.save(direction);
     }
+
+    public async getDirectionsByCompetition(competition: CompetitionEntity): Promise<DirectionsEntity[]> {
+        return this.repository.find({ competition: competition });
+    }
+
 }

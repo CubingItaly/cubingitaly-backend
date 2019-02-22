@@ -76,8 +76,10 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
     @Column({ type: "text", nullable: true })
     public registrationExtraInfo: string;
 
-    @OneToMany(type => RefundPolicyEntity, policy => policy.registration, { eager: true })
-    @JoinTable()
+    @Column({default:false})
+    public isComplete:boolean;
+
+    @OneToMany(type => RefundPolicyEntity, policy => policy.registration, { cascade: true, eager: true })
     public refundPolicy: RefundPolicyEntity[];
 
     @ManyToMany(type => PaymentMeanEntity, paymentMean => paymentMean.registrations, { eager: true })
