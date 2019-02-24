@@ -7,6 +7,7 @@ import { EventEntity } from "./competition/event.entity";
 import { EventModel } from "../../models/classes/competition/event.model";
 import { UserEntity } from "./user.entity";
 import { UserModel } from "../../models/classes/user.model";
+import { ScheduleEntity } from "./competition/schedule.entity";
 
 @Entity()
 export class CompetitionEntity extends BaseEntity implements ITransformable<CompetitionModel> {
@@ -85,6 +86,9 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
     @ManyToMany(type => UserEntity, user => user.organizedCompetitions, { eager: true, nullable: false })
     @JoinTable()
     public organizers: UserEntity[];
+
+    @OneToMany(type => ScheduleEntity, schedule => schedule.competition)
+    public schedule: ScheduleEntity[];
 
 
     _transform(): CompetitionModel {

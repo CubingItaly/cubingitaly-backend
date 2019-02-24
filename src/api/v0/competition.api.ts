@@ -26,6 +26,9 @@ import { PaymentMeanModel } from "../../models/classes/competition/paymentmean.m
 import { DirectionsEntity } from "../../db/entity/competition/directions.entity";
 import { DirectionsRepository } from "../../db/repository/competition/directions.repository";
 import { DirectionsModel } from "../../models/classes/competition/directions.model";
+import { ScheduleModel } from "../../models/classes/competition/schedule.model";
+import { ScheduleEntity } from "../../db/entity/competition/schedule.entity";
+import { ScheduleRepository } from "../../db/repository/competition/schedule.repository";
 
 const router: Router = Router();
 
@@ -186,7 +189,7 @@ router.get("/:id", async (req, res) => {
     let repo: CompetitionRepository = getCompetitionRepository();
     let entity: CompetitionEntity = await repo.getCompetition(req.params.id);
     let user: UserModel = getUser(req);
-    if (entity && entity.isOfficial || (user && user.canViewCompetition(entity._transform()))) {
+    if ((entity && entity.isOfficial) || (entity && user && user.canViewCompetition(entity._transform()))) {
         res.status(200).json(entity._transform());
     } else {
         sendError(res, 404, "The requested resource does not exist.");
@@ -269,7 +272,9 @@ router.get("/:id/registrations", async (req, res) => {
     let user: UserModel = getUser(req);
     if (competition && (competition.isOfficial || user && user.canEditCompetition(competition._transform()))) {
         let registration: RegistrationEntity = await getRegistrationRepository().getRegistrationByCompetition(competition);
-        res.status(200).json(registration._transform());
+        if (registration) {
+            res.status(200).json(registration._transform());
+        }
     } else {
         sendError(res, 404, "Bad request. The requested resource doesn't exist.");
     }
@@ -409,6 +414,17 @@ router.delete("/:id/directions/:did", verifyLogin, canEditCompetition, async (re
     }
 });
 
+router.get("/:id/schedule", async (req, res) => {
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    let user: UserModel = getUser(req);
+    if ((competition && competition.isOfficial) || (competition && user.canViewCompetition(competition._transform()))) {
+        let schedule: ScheduleEntity[] = await getCustomRepository(ScheduleRepository).getSchedule(competition);
+        let model: ScheduleModel[] = schedule.map((s: ScheduleEntity) => s._transform());
+        res.status(200).json(model);
+    } else {
+        sendError(res, 404, "Error. The requested resource doesn't exist.")
+    }
+})
 
 
 export { router }

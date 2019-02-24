@@ -26,6 +26,7 @@ import { router as contactRoutes } from './api/v0/contact.api';
 import { router as faqRoutes } from './api/v0/faq.api';
 import { router as sitemap } from './api/v0/sitemap.api';
 import { router as compRoutes } from './api/v0/competition.api';
+import { router as scheduleRoutes } from './api/v0/schedule.api';
 
 
 const PORT = normalizePort(process.env.PORT || 4300);
@@ -67,6 +68,7 @@ function addRoutes() {
     app.use("/api/v0/tutorial", tutorialRoutes);
     app.use("/api/v0/contact", contactRoutes);
     app.use("/api/v0/faq", faqRoutes);
+    app.use("/api/v0/competitions/schedule", scheduleRoutes);
     app.use("/api/v0/competitions", compRoutes);
     app.use("/sitemap", sitemap);
 }
