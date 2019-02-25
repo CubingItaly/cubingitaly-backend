@@ -1,6 +1,5 @@
 import { Router } from "express";
 import * as passport from 'passport';
-import { scheduleMiddleWare } from "../../passport/strategy.passport.wca";
 import { verifyLogin, getUser } from "../../shared/login.utils";
 import { sendError } from "../../shared/error.utils";
 import { UserModel } from "../../models/classes/user.model";
@@ -14,85 +13,86 @@ import { ScheduleRowModel } from '../../models/classes/competition/schedule.row.
 import { ScheduleModel } from '../../models/classes/competition/schedule.model';
 import { EventRepository } from "../../db/repository/competition/event.repository";
 import { EventEntity } from "../../db/entity/competition/event.entity";
-import { ScheduleRepository } from "../../db/repository/competition/schedule.repository";
+import { keys } from "../../secrets/keys";
+import { canEditCompetition, getCompetitionRepository, getScheduleRepository } from "../../shared/competition.utils";
+import { UserEntity } from "../../db/entity/user.entity";
 import { ScheduleEntity } from "../../db/entity/competition/schedule.entity";
 
 
 const router: Router = Router();
 
-function getScheduleRepository(): ScheduleRepository {
-    return getCustomRepository(ScheduleRepository);
-}
-
-
-async function canEditCompetition(req, res, next) {
+async function isOrganizerOrDelegate(req, res, next) {
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
     let user: UserModel = getUser(req);
-    let competition: CompetitionEntity = await getCustomRepository(CompetitionRepository).getCompetition(req.params.id);
-    let model: CompetitionModel = competition._transform();
-    if (user.canEditCompetition(model)) {
+    let isDelegate: boolean = competition.delegates.findIndex((u: UserEntity) => u.id === user.id) >= 0;
+    let isOrganizer: boolean = competition.organizers.findIndex((u: UserEntity) => u.id === user.id) >= 0;
+    if (isDelegate || isOrganizer) {
         next();
     } else {
-        if (user.canViewCompetition(model)) {
-            sendError(res, 403, "Permission denied. You don't the permissions to perform the requested action.");
-        } else {
-            sendError(res, 404, "Error. The requested resource doesn't exist.");
-        }
+        sendError(res, 403, "Error! To perform this action you must be organizer or delegate of the competition.");
     }
 }
 
-async function competitionExist(req, res, next) {
-    let competition: CompetitionEntity = await getCustomRepository(CompetitionRepository).getCompetition(req.params.id);
-    if (competition) {
-        next();
-    } else {
-        sendError(res, 404, "Error. The requested resource doesn't exist.");
-    }
-}
-
+let scheduleRequests: Map<number, string> = new Map<number, string>();
 
 /**
  * Redirect the user to the WCA website to ask for the permissions 
  */
-router.get("/:id/wca", verifyLogin, competitionExist, canEditCompetition, scheduleMiddleWare, passport.authenticate('wca', { session: false }));
+router.get("/:id/wca", verifyLogin, canEditCompetition, async (req, res) => {
+    scheduleRequests[getUser(req).id] = req.params.id;
+    res.redirect(`https://staging.worldcubeassociation.org/oauth/authorize?client_id=${keys.wca.dev.client_id}&response_type=code&redirect_uri=http://localhost:4200/api/v0/competitions/schedule/wca/callback&scope=manage_competitions`);
+});
 
-function backupUser(req, res, next) {
-    req.backupUser = req.user;
-    next();
-}
-
-
-
-
-router.get('/wca/callback', verifyLogin, backupUser, passport.authenticate('wca', { session: false }), async (req, res) => {
-    let token = req.user.token;
-    let comp = req.user.comp;
-    req.user = req['backupUser'];
-    let wcif = await request({
-        url: `https://staging.worldcubeassociation.org/api/v0/competitions/${comp}/wcif`,
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-type': 'application/json'
-        },
-        json: true
-    });
-    if (wcif.id) {
-        let competition: CompetitionEntity = await getCustomRepository(CompetitionRepository).getCompetition(wcif.id);
-        if (competition && getUser(req).canEditCompetition(competition._transform())) {
-            let schedule: ScheduleModel[] = await scheduleParser(wcif);
-            let schedEntity: ScheduleEntity[] = schedule.map((s: ScheduleModel) => {
-                let temp: ScheduleEntity = new ScheduleEntity();
-                temp._assimilate(s);
-                return temp;
+router.get("/wca/callback", verifyLogin, async (req, res) => {
+    let code = req.query.code;
+    if (code) {
+        let body = await request({
+            method: 'POST',
+            url: 'https://staging.worldcubeassociation.org/oauth/token',
+            body: {
+                grant_type: 'authorization_code',
+                code: code,
+                redirect_uri: 'http://localhost:4200/api/v0/competitions/schedule/wca/callback',
+                client_id: keys.wca.dev.client_id,
+                client_secret: keys.wca.dev.client_secret
+            },
+            json: true
+        });
+        if (body.access_token) {
+            let token = body.access_token;
+            let wcif = await request({
+                url: `https://staging.worldcubeassociation.org/api/v0/competitions/${scheduleRequests[getUser(req).id]}/wcif`,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-type': 'application/json'
+                },
+                json: true
             });
-            await getScheduleRepository().insertSchedule(competition, schedEntity);
-            res.redirect(`/competizioni/${wcif.id}/edit?tab=2`);
+            if (wcif.id) {
+                let competition: CompetitionEntity = await getCustomRepository(CompetitionRepository).getCompetition(wcif.id);
+                if (competition && getUser(req).canEditCompetition(competition._transform())) {
+                    let schedule: ScheduleModel[] = await scheduleParser(wcif);
+                    let schedEntity: ScheduleEntity[] = schedule.map((s: ScheduleModel) => {
+                        let temp: ScheduleEntity = new ScheduleEntity();
+                        temp._assimilate(s);
+                        return temp;
+                    });
+                    await getScheduleRepository().insertSchedule(competition, schedEntity);
+                    res.redirect(`/competizioni/${wcif.id}/edit?tab=2`);
+                } else {
+                    sendError(res, 403, "Permission denied. You don't have the permissions to perform the requested action");
+                }
+            } else {
+                sendError(res, 404, "Error. The requested resource doesn't exist.");
+            }
         } else {
-            sendError(res, 403, "Permission denied. You don't have the permissions to perform the requested action");
+            res.status(500);
         }
     } else {
-        sendError(res, 404, "Error. The requested resource doesn't exist.");
+        sendError(res, 400, "Bad request. The request is malformed.");
     }
 });
+
 
 const otherNames = {
     'other-registration': "Registrazione",
@@ -103,30 +103,28 @@ const otherNames = {
     'other-breakfast': "Colazione",
 };
 
-const roundNames4 = {
-    1: "Primo turno",
-    2: "Secondo turno",
-    3: "Semifinale",
-    4: "Finale"
-}
 
+const roundNames = [
+    {
+        1: "Finale"
+    },
+    {
+        1: "Primo turno",
+        2: "Finale"
+    },
+    {
+        1: "Primo turno",
+        2: "Secondo turno",
+        3: "Finale"
+    },
+    {
+        1: "Primo turno",
+        2: "Secondo turno",
+        3: "Semifinale",
+        4: "Finale"
+    }
+];
 
-const roundNames3 = {
-    1: "Primo turno",
-    2: "Secondo turno",
-    3: "Finale"
-}
-
-
-const roundNames2 = {
-    1: "Primo turno",
-    2: "Finale"
-}
-
-
-const roundNames1 = {
-    1: "Finale"
-}
 
 async function scheduleParser(wcif): Promise<ScheduleModel[]> {
 
@@ -175,16 +173,9 @@ async function giveRoundNames(scheduleRows: ScheduleRowModel[]): Promise<Schedul
         if (s.eventId !== "other") {
             let name = dbEvents.find((e: EventEntity) => e.id === s.eventId).name;
             let round: string;
-            let roundsNumber: number = scheduleRows.filter((e: ScheduleRowModel) => e.eventId === s.eventId).length;
-            if (roundsNumber === 4) {
-                round = roundNames4[s.roundId];
-            } else if (roundsNumber === 3) {
-                round = roundNames3[s.roundId];
-            } else if (roundsNumber === 2) {
-                round = roundNames2[s.roundId];
-            } else {
-                round = roundNames1[s.roundId];
-            }
+            let roundsNumber: number = scheduleRows.filter((e: ScheduleRowModel) => e.eventId === s.eventId).length - 1;
+            round = roundNames[roundsNumber][s.roundId];
+
             if (s.cutoff) {
                 round += ` combinat` + (roundsNumber === 1 ? "a" : "o");
             }
@@ -208,10 +199,8 @@ async function giveRoundNames(scheduleRows: ScheduleRowModel[]): Promise<Schedul
             }
         }
     }
-
     return scheduleRows;;
 }
-
 
 function addRoundInfo(events, scheduleRows: ScheduleRowModel[]): ScheduleRowModel[] {
     let rowsWithInfo: ScheduleRowModel[] = scheduleRows.filter((s: ScheduleRowModel) => s.eventId === "other");
@@ -220,25 +209,57 @@ function addRoundInfo(events, scheduleRows: ScheduleRowModel[]): ScheduleRowMode
             let fSched: ScheduleRowModel[] = scheduleRows.filter((s: ScheduleRowModel) => `${s.eventId}-r${s.roundId}` === r.id);
             for (let s of fSched) {
                 s.format = r.format;
-                if (r.timeLimit) {
-                    s.timeLimit = r.timeLimit.centiseconds;
-                    s.cumulativeTimeLimit = r.timeLimit.cumulativeRoundIds.length > 0;
-                }
-                if (r.cutoff) {
-                    s.cutoff = r.cutoff.attemptResult;
-                    s.cutoffAttempts = r.cutoff.numberOfAttempts;
-                }
-                if (r.advancementCondition) {
-                    s.advancementType = r.advancementCondition.type;
-                    s.advancementLevel = r.advancementCondition.level;
-                }
+                s.timeLimit = assignTimeLimit(r);
+                s.cutoff = assignCutOff(r);
+                s.advance = assignAdvancement(r);
                 rowsWithInfo.push(s);
             }
         }
     }
     return rowsWithInfo;
+
 }
 
+function assignTimeLimit(round): string {
+    if (round.timeLimit) {
+        let cutoff: Date = new Date(round.timeLimit.centiseconds * 10);
+        let hours: string = `${cutoff.getHours() - 1}`;
+        let minutes: string = `0${cutoff.getMinutes()}`.slice(-2);
+        let seconds: string = `0${cutoff.getSeconds()}`.slice(-2);
+        if (hours === "0") {
+            return `${minutes}:${seconds}`;
+        } else {
+            return `${hours}:${minutes}:${seconds}`;
+        }
+    }
+    return null;
+}
+
+function assignCutOff(round): string {
+    if (round.cutoff) {
+        let cutoff: Date = new Date(round.cutoff.attemptResult * 10);
+        let minutes: string = `0${cutoff.getMinutes()}`.slice(-2);
+        let seconds: string = `0${cutoff.getSeconds()}`.slice(-2);
+        if (minutes === "00") {
+            return `${seconds}s`;
+        } else {
+            return `${minutes}:${seconds}`;
+        }
+    }
+    return null;
+}
+
+function assignAdvancement(round): string {
+    let a = round.advancementCondition
+    if (a) {
+        if (a.type === "ranking") {
+            return `${a.level}`;
+        } else if (a.type = "percent") {
+            return `${a.level}%`
+        }
+    }
+    return null;
+}
 
 function getRows(venues): ScheduleRowModel[] {
     let scheduleRows: ScheduleRowModel[] = [];
@@ -290,9 +311,9 @@ function getRows(venues): ScheduleRowModel[] {
     return scheduleRows;
 }
 
-
 function sameDay(d1: Date, d2: Date): boolean {
     return (d1.getFullYear() === d2.getFullYear() && d1.getDay() === d2.getDay() && d1.getMonth() === d2.getMonth());
 }
+
 
 export { router } 

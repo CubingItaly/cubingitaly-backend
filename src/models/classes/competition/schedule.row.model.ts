@@ -27,13 +27,13 @@ export class ScheduleRowModel {
     public format?: string;
 
     @autoserialize
-    public timeLimit: number;
+    public timeLimit: string;
 
     @autoserialize
     public cumulativeTimeLimit: boolean;
 
     @autoserialize
-    public cutoff?: number;
+    public cutoff?: string;
 
     @autoserialize
     public cutoffAttempts?: number;
@@ -43,6 +43,9 @@ export class ScheduleRowModel {
 
     @autoserialize
     public advancementLevel?: number;
+
+    @autoserialize
+    public advance: string;
 
     @autoserialize
     public room: string;

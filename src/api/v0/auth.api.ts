@@ -13,8 +13,6 @@ router.get("/logout", (req, res): void => {
     res.redirect("/");
 });
 
-
-
 /**
  * Redirect the user to the WCA website to ask for the permissions 
  */

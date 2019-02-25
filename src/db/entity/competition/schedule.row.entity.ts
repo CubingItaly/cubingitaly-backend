@@ -22,13 +22,16 @@ export class ScheduleRowEntity extends BaseEntity implements ITransformable<Sche
     public roundFormat: string;
 
     @Column({ nullable: true })
-    public timeLimit: number;
+    public timeLimit: string;
 
     @Column({ default: false })
     public cumulativeTimeLimit: boolean;
 
     @Column({ nullable: true })
-    public cutoff: number;
+    public advance: string;
+
+    @Column({ nullable: true })
+    public cutoff: string;
 
     @Column({ nullable: true })
     public advancementType: string;
@@ -45,7 +48,7 @@ export class ScheduleRowEntity extends BaseEntity implements ITransformable<Sche
     @Column()
     public end: Date;
 
-    @ManyToOne(type => ScheduleEntity, schedule => schedule.rows, {onDelete:'CASCADE'})
+    @ManyToOne(type => ScheduleEntity, schedule => schedule.rows, { onDelete: 'CASCADE' })
     @JoinTable()
     public schedule: ScheduleEntity;
 
@@ -64,6 +67,7 @@ export class ScheduleRowEntity extends BaseEntity implements ITransformable<Sche
         model.room = this.room;
         model.start = this.start;
         model.end = this.end;
+        model.advance = this.advance;
         return model;
     }
 
@@ -80,6 +84,7 @@ export class ScheduleRowEntity extends BaseEntity implements ITransformable<Sche
         this.advancementLevel = origin.advancementLevel;
         this.room = origin.room;
         this.start = origin.start;
+        this.advance = origin.advance;
         this.end = origin.end;
     }
 
