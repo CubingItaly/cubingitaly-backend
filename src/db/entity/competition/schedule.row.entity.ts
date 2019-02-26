@@ -9,6 +9,12 @@ export class ScheduleRowEntity extends BaseEntity implements ITransformable<Sche
     @PrimaryGeneratedColumn()
     public id: number;
 
+    @Column()
+    public start: Date;
+
+    @Column()
+    public end: Date;
+
     @Column({ nullable: true })
     public name: string;
 
@@ -22,31 +28,16 @@ export class ScheduleRowEntity extends BaseEntity implements ITransformable<Sche
     public roundFormat: string;
 
     @Column({ nullable: true })
-    public timeLimit: string;
+    public cutoff: string;
 
-    @Column({ default: false })
-    public cumulativeTimeLimit: boolean;
+    @Column({ nullable: true })
+    public timeLimit: string;
 
     @Column({ nullable: true })
     public advance: string;
 
     @Column({ nullable: true })
-    public cutoff: string;
-
-    @Column({ nullable: true })
-    public advancementType: string;
-
-    @Column({ nullable: true })
-    public advancementLevel: number;
-
-    @Column({ nullable: true })
     public room: string;
-
-    @Column()
-    public start: Date;
-
-    @Column()
-    public end: Date;
 
     @ManyToOne(type => ScheduleEntity, schedule => schedule.rows, { onDelete: 'CASCADE' })
     @JoinTable()
@@ -60,10 +51,7 @@ export class ScheduleRowEntity extends BaseEntity implements ITransformable<Sche
         model.roundFormat = this.roundFormat;
         model.eventId = this.eventId;
         model.timeLimit = this.timeLimit;
-        model.cumulativeTimeLimit = this.cumulativeTimeLimit;
         model.cutoff = this.cutoff;
-        model.advancementType = this.advancementType;
-        model.advancementLevel = this.advancementLevel;
         model.room = this.room;
         model.start = this.start;
         model.end = this.end;
@@ -78,10 +66,7 @@ export class ScheduleRowEntity extends BaseEntity implements ITransformable<Sche
         this.roundFormat = origin.roundFormat;
         this.eventId = origin.eventId;
         this.timeLimit = origin.timeLimit;
-        this.cumulativeTimeLimit = origin.cumulativeTimeLimit;
         this.cutoff = origin.cutoff;
-        this.advancementType = origin.advancementType;
-        this.advancementLevel = origin.advancementLevel;
         this.room = origin.room;
         this.start = origin.start;
         this.advance = origin.advance;

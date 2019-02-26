@@ -21,24 +21,22 @@ import { ScheduleEntity } from "../../db/entity/competition/schedule.entity";
 
 const router: Router = Router();
 
+let scheduleRequests: Map<number, string> = new Map<number, string>();
+
 async function isOrganizerOrDelegate(req, res, next) {
     let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
-    let user: UserModel = getUser(req);
-    let isDelegate: boolean = competition.delegates.findIndex((u: UserEntity) => u.id === user.id) >= 0;
-    let isOrganizer: boolean = competition.organizers.findIndex((u: UserEntity) => u.id === user.id) >= 0;
-    if (isDelegate || isOrganizer) {
+    let model: CompetitionModel = competition._transform();
+    if (getUser(req).isDelOrgOf(model)) {
         next();
     } else {
         sendError(res, 403, "Error! To perform this action you must be organizer or delegate of the competition.");
     }
 }
 
-let scheduleRequests: Map<number, string> = new Map<number, string>();
-
 /**
  * Redirect the user to the WCA website to ask for the permissions 
  */
-router.get("/:id/wca", verifyLogin, canEditCompetition, async (req, res) => {
+router.get("/:id/wca", verifyLogin, isOrganizerOrDelegate, async (req, res) => {
     scheduleRequests[getUser(req).id] = req.params.id;
     res.redirect(`https://staging.worldcubeassociation.org/oauth/authorize?client_id=${keys.wca.dev.client_id}&response_type=code&redirect_uri=http://localhost:4200/api/v0/competitions/schedule/wca/callback&scope=manage_competitions`);
 });
@@ -86,7 +84,7 @@ router.get("/wca/callback", verifyLogin, async (req, res) => {
                 sendError(res, 404, "Error. The requested resource doesn't exist.");
             }
         } else {
-            res.status(500);
+            sendError(res, 400, "Bad request. The request is malformed.");
         }
     } else {
         sendError(res, 400, "Bad request. The request is malformed.");
@@ -105,24 +103,10 @@ const otherNames = {
 
 
 const roundNames = [
-    {
-        1: "Finale"
-    },
-    {
-        1: "Primo turno",
-        2: "Finale"
-    },
-    {
-        1: "Primo turno",
-        2: "Secondo turno",
-        3: "Finale"
-    },
-    {
-        1: "Primo turno",
-        2: "Secondo turno",
-        3: "Semifinale",
-        4: "Finale"
-    }
+    { 1: "Finale" },
+    { 1: "Primo turno", 2: "Finale" },
+    { 1: "Primo turno", 2: "Secondo turno", 3: "Finale" },
+    { 1: "Primo turno", 2: "Secondo turno", 3: "Semifinale", 4: "Finale" }
 ];
 
 
@@ -211,6 +195,9 @@ function addRoundInfo(events, scheduleRows: ScheduleRowModel[]): ScheduleRowMode
                 s.format = r.format;
                 s.timeLimit = assignTimeLimit(r);
                 s.cutoff = assignCutOff(r);
+                if (r.cutoff) {
+                    s.cutoffAttempts = r.cutoff.numberOfAttempts;
+                }
                 s.advance = assignAdvancement(r);
                 rowsWithInfo.push(s);
             }
@@ -226,10 +213,16 @@ function assignTimeLimit(round): string {
         let hours: string = `${cutoff.getHours() - 1}`;
         let minutes: string = `0${cutoff.getMinutes()}`.slice(-2);
         let seconds: string = `0${cutoff.getSeconds()}`.slice(-2);
+        let result: string = "";
         if (hours === "0") {
-            return `${minutes}:${seconds}`;
+            result = `${minutes}:${seconds}`;
         } else {
-            return `${hours}:${minutes}:${seconds}`;
+            result = `${hours}:${minutes}:${seconds}`;
+        }
+        if (round.timeLimit.cumulativeRoundIds.length === 1) {
+            result += " cumulativo";
+        } else if (round.timeLimit.cumulativeRoundIds.length > 1) {
+            result += " cumulativo con altri eventi";
         }
     }
     return null;
@@ -269,9 +262,7 @@ function getRows(venues): ScheduleRowModel[] {
                 let row: ScheduleRowModel = new ScheduleRowModel();
                 row.start = new Date(a.startTime);
                 row.end = new Date(a.endTime);
-                if (v.rooms.length > 1) {
-                    row.room = r.name;
-                }
+                row.room = r.name;
                 if ((a.activityCode).startsWith("other")) {
                     row.eventId = "other";
                     if (a.activityCode === "other-misc") {

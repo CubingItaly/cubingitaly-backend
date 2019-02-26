@@ -18,31 +18,10 @@ export class ScheduleRowModel {
     public eventId?: string;
 
     @autoserialize
-    public roundId?: number;
-
-    @autoserialize
-    public attemptId?: number;
-
-    @autoserialize
-    public format?: string;
-
-    @autoserialize
     public timeLimit: string;
 
     @autoserialize
-    public cumulativeTimeLimit: boolean;
-
-    @autoserialize
     public cutoff?: string;
-
-    @autoserialize
-    public cutoffAttempts?: number;
-
-    @autoserialize
-    public advancementType?: string;
-
-    @autoserialize
-    public advancementLevel?: number;
 
     @autoserialize
     public advance: string;
@@ -55,4 +34,14 @@ export class ScheduleRowModel {
 
     @autoserializeAs(Date)
     public end: Date;
+
+    public format?: string;
+
+    public roundId?: number;
+
+    public attemptId?: number;
+
+    public cumulativeTimeLimit: boolean;
+
+    public cutoffAttempts: number;
 }

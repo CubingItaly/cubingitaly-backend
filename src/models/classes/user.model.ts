@@ -257,4 +257,8 @@ export class UserModel {
     public canAnnounceCompetition(competition: CompetitionModel) {
         return this.canAdminCompetitions() || competition.hasDelegate(this.id);
     }
+
+    public isDelOrgOf(competition: CompetitionModel) {
+        return competition.hasDelegate(this.id) || competition.hasOrganizer(this.id);
+    }
 }

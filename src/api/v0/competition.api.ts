@@ -145,6 +145,13 @@ router.get("/paymentmeans", async (req, res) => {
 Competition APIs
 */
 
+router.get("/official", async (req, res) => {
+    let competitions: CompetitionEntity[] = await getCompetitionRepository().getOfficialCompetitions();
+    let model: CompetitionModel[] = competitions.map((c: CompetitionEntity) => c._transform());
+    res.status(200).json(model);
+})
+
+
 router.get("/:id", canViewCompetition, async (req, res) => {
     let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
     res.status(200).json(competition._transform());

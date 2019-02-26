@@ -1,5 +1,5 @@
 import { BaseCommonRepository } from "../BaseCommonRepository";
-import { EntityRepository, getCustomRepository } from "typeorm";
+import { EntityRepository, getCustomRepository, MoreThan } from "typeorm";
 import { CompetitionEntity } from "../entity/competition.entity";
 import { DirectionsRepository } from "./competition/directions.repository";
 import { RegistrationRepository } from "./competition/registration.repository";
@@ -43,5 +43,12 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
 
     public async announcerUpdateCompetition(competition: CompetitionEntity): Promise<CompetitionEntity> {
         return this.repository.save(competition);
+    }
+
+    public async getOfficialCompetitions(): Promise<CompetitionEntity[]> {
+        return this.repository.find({
+            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'locationURL'],
+            order: { 'startDate': 'DESC' }, where: { 'isOfficial': true, 'isHidden': false }
+        });
     }
 }
