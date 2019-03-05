@@ -15,7 +15,7 @@ export class PaymentMeanEntity extends BaseEntity implements ITransformable<Paym
     @Column({ nullable: false, type: "text" })
     public details: string;
 
-    @ManyToMany(type => RegistrationEntity, registration => registration.paymentMeans)
+    @ManyToMany(type => RegistrationEntity, registration => registration.paymentMeans, { onDelete: 'CASCADE' })
     public registrations: RegistrationEntity;
 
     _transform(): PaymentMeanModel {

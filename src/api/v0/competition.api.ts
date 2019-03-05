@@ -113,9 +113,9 @@ async function edoAreValid(req, res, next) {
 }
 
 async function sanitizeComp(req, res, next) {
-    req.body.competition.extraInformation = sanitize(req.body.competition.extraInformation);
-    req.body.competition.locationURL = sanitize(req.body.competition.locationURL);
-    req.body.competition.logoURL = sanitize(req.body.competition.logoURL);
+    req.body.competition.extraInformation = req.body.competition.extraInformation ? sanitize(req.body.competition.extraInformation) : null;
+    req.body.competition.locationURL = req.body.competition.locationURL ? sanitize(req.body.competition.locationURL) : null;
+    req.body.competition.logoURL = req.body.competition.logoURL ? sanitize(req.body.competition.logoURL) : null;
     next();
 }
 
@@ -245,7 +245,7 @@ async function regBelongsToComp(req, res, next) {
 }
 
 async function sanitizeRegistration(req, res, next) {
-    req.body.registration.registrationExtraInfo = sanitize(req.body.registration.registrationExtraInfo);
+    req.body.registration.registrationExtraInfo = req.body.registration.registrationExtraInfo ? sanitize(req.body.registration.registrationExtraInfo) : null;
     next();
 }
 
@@ -280,7 +280,7 @@ function directionsHasNoId(req, res, next) {
 }
 
 function sanitizeDirections(req, res, next) {
-    req.body.directions.directions = sanitize(req.body.directions.directions);
+    req.body.directions.directions = req.body.directions.directions ? sanitize(req.body.directions.directions) : null;
     next();
 }
 
@@ -324,10 +324,13 @@ router.post("/:id/directions", verifyLogin, canEditCompetition, directionsHasNoI
         let directions: DirectionsModel = Deserialize(req.body.directions, DirectionsModel);
         let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
         let entity: DirectionsEntity = new DirectionsEntity();
+        entity._assimilate(directions);
         try {
             entity = await getDirectionsRepository().createDirection(entity, competition);
             res.status(200).json(entity._transform());
         } catch (e) {
+
+            console.log(e);
             sendError(res, 400, "Bad request. Some attributes are missing.");
         }
     });
@@ -337,6 +340,7 @@ router.put("/:id/directions/:did", verifyLogin, canEditCompetition, didMatch,
         let directions: DirectionsModel = Deserialize(req.body.directions, DirectionsModel);
         let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
         let entity: DirectionsEntity = new DirectionsEntity();
+        entity._assimilate(directions);
         try {
             entity = await getDirectionsRepository().createDirection(entity, competition);
             res.status(200).json(entity._transform());

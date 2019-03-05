@@ -76,4 +76,7 @@ export class RegistrationModel {
     @autoserialize
     public registrationExtraInfo?: string;
 
+    @autoserialize
+    public isComplete: boolean;
+
 }

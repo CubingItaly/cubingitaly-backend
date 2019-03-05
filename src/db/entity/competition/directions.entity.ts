@@ -10,13 +10,13 @@ export class DirectionsEntity extends BaseEntity implements ITransformable<Direc
     @PrimaryGeneratedColumn()
     public id: number;
 
-    @Column({ type: "text" })
+    @Column({ type: "text", nullable: true })
     public directions: string;
 
     @ManyToOne(type => TravelMeanEntity, mean => mean.directions, { nullable: false, eager: true })
     public mean: TravelMeanEntity;
 
-    @ManyToOne(type => CompetitionEntity, competition => competition.directions)
+    @ManyToOne(type => CompetitionEntity, competition => competition.directions, { onDelete: 'CASCADE' })
     public competition: CompetitionEntity;
 
     _transform(): DirectionsModel {

@@ -17,7 +17,7 @@ export class ScheduleEntity extends BaseEntity implements ITransformable<Schedul
     @Column()
     public dayIndex: number;
 
-    @ManyToOne(type => CompetitionEntity, competition => competition.schedule)
+    @ManyToOne(type => CompetitionEntity, competition => competition.schedule, { onDelete: 'CASCADE' })
     @JoinTable()
     public competition: CompetitionEntity;
 

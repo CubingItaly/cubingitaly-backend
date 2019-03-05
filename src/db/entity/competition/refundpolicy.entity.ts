@@ -15,7 +15,7 @@ export class RefundPolicyEntity extends BaseEntity implements ITransformable<Ref
     @Column({ nullable: false })
     public deadline: Date;
 
-    @ManyToOne(type=> RegistrationEntity, registration=>registration.refundPolicy)
+    @ManyToOne(type => RegistrationEntity, registration => registration.refundPolicy, { onDelete: 'CASCADE' })
     @JoinTable()
     public registration: RegistrationEntity;
 

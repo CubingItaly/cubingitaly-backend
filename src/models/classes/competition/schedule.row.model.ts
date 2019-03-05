@@ -29,11 +29,15 @@ export class ScheduleRowModel {
     @autoserialize
     public room: string;
 
-    @autoserializeAs(Date)
-    public start: Date;
+    @autoserialize
+    public start: string;
 
-    @autoserializeAs(Date)
-    public end: Date;
+    @autoserialize
+    public end: string;
+
+    public startDate: Date;
+
+    public endDate: Date;
 
     public format?: string;
 

@@ -16,10 +16,10 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
     @Column({ default: 0 })
     public competitorsLimit: number;
 
-    @Column({ nullable: true })
+    @Column()
     public registrationOpen: Date;
 
-    @Column({ nullable: true })
+    @Column()
     public registrationClose: Date;
 
     @Column({ default: false })
@@ -86,7 +86,7 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
     @JoinTable()
     public paymentMeans: PaymentMeanEntity[];
 
-    @OneToOne(type => CompetitionEntity, competition => competition.registration)
+    @OneToOne(type => CompetitionEntity, competition => competition.registration, { onDelete: 'CASCADE' })
     @JoinColumn()
     public competition: CompetitionEntity;
 
@@ -114,6 +114,7 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
         model.paypalLink = this.paypalLink;
         model.refundAvailable = this.refundAvailable;
         model.registrationExtraInfo = this.registrationExtraInfo;
+        model.isComplete=this.isComplete;
         if (this.refundPolicy) {
             model.refundPolicy = this.refundPolicy.map((p: RefundPolicyEntity) => p._transform());
         }

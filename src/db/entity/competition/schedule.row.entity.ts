@@ -10,10 +10,10 @@ export class ScheduleRowEntity extends BaseEntity implements ITransformable<Sche
     public id: number;
 
     @Column()
-    public start: Date;
+    public start: string;
 
     @Column()
-    public end: Date;
+    public end: string;
 
     @Column({ nullable: true })
     public name: string;

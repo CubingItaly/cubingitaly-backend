@@ -30,7 +30,10 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
 
     public async createCompetition(competition: CompetitionEntity): Promise<CompetitionEntity> {
         let comp: CompetitionEntity = await this.repository.save(competition);
-        await getCustomRepository(RegistrationRepository).createRegistration(comp, new RegistrationEntity());
+        let tempReg: RegistrationEntity = new RegistrationEntity();
+        tempReg.registrationOpen = new Date();
+        tempReg.registrationClose = new Date();
+        await getCustomRepository(RegistrationRepository).createRegistration(comp, tempReg);
         return comp;
     }
 

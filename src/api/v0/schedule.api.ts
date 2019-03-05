@@ -76,12 +76,12 @@ router.get("/wca/callback", verifyLogin, async (req, res) => {
                         return temp;
                     });
                     await getScheduleRepository().insertSchedule(competition, schedEntity);
-                    res.redirect(`/competizioni/${wcif.id}/edit?tab=2`);
+                    res.redirect(`/competizioni/edit/${wcif.id}?tab=2&imported=true`);
                 } else {
                     sendError(res, 403, "Permission denied. You don't have the permissions to perform the requested action");
                 }
             } else {
-                sendError(res, 404, "Error. The requested resource doesn't exist.");
+                sendError(res, 403, "Permission denied. You don't have the permissions to perform the requested action");
             }
         } else {
             sendError(res, 400, "Bad request. The request is malformed.");
@@ -125,10 +125,10 @@ async function scheduleParser(wcif): Promise<ScheduleModel[]> {
 function getScheduleFromRows(scheduleRows: ScheduleRowModel[]): ScheduleModel[] {
     let schedule: ScheduleModel[] = [];
     for (let r of scheduleRows) {
-        let index = schedule.findIndex((s: ScheduleModel) => sameDay(s.day, r.start));
+        let index = schedule.findIndex((s: ScheduleModel) => sameDay(s.day, r.startDate));
         if (index < 0) {
             let newDay: ScheduleModel = new ScheduleModel();
-            newDay.day = r.start;
+            newDay.day = r.startDate;
             newDay.dayIndex = schedule.length + 1;
             newDay.rows = [r];
             schedule.push(newDay);
@@ -141,9 +141,14 @@ function getScheduleFromRows(scheduleRows: ScheduleRowModel[]): ScheduleModel[] 
 
 function sortScheduleRows(scheduleRows: ScheduleRowModel[]): ScheduleRowModel[] {
     return scheduleRows.sort((a: ScheduleRowModel, b: ScheduleRowModel) => {
-        if (a.start > b.start) {
+        if (a.startDate > b.startDate) {
             return 1;
-        } else if (a.start < b.start) {
+        } else if (a.startDate < b.startDate) {
+            return -1;
+        }
+        if (a.endDate > b.endDate) {
+            return 1;
+        } else if (a.endDate < b.endDate) {
             return -1;
         }
         return 0;
@@ -224,6 +229,7 @@ function assignTimeLimit(round): string {
         } else if (round.timeLimit.cumulativeRoundIds.length > 1) {
             result += " cumulativo con altri eventi";
         }
+        return result;
     }
     return null;
 }
@@ -260,8 +266,10 @@ function getRows(venues): ScheduleRowModel[] {
         for (let r of v.rooms) {
             for (let a of r.activities) {
                 let row: ScheduleRowModel = new ScheduleRowModel();
-                row.start = new Date(a.startTime);
-                row.end = new Date(a.endTime);
+                row.startDate = new Date(a.startTime);
+                row.endDate = new Date(a.endTime);
+                row.start = row.startDate.toLocaleTimeString('it-it', { timeZone: v.timezone, minute: '2-digit', hour: '2-digit' });
+                row.end = row.endDate.toLocaleTimeString('it-it', { timeZone: v.timezone, minute: '2-digit', hour: '2-digit' });
                 row.room = r.name;
                 if ((a.activityCode).startsWith("other")) {
                     row.eventId = "other";

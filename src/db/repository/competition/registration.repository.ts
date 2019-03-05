@@ -36,6 +36,7 @@ export class RegistrationRepository extends BaseCommonRepository<RegistrationEnt
             return;
         } else {
             registration.competition = competition;
+            registration.isComplete = false;
             return this.repository.save(registration);
         }
     }
