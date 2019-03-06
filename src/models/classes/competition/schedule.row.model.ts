@@ -48,4 +48,6 @@ export class ScheduleRowModel {
     public cumulativeTimeLimit: boolean;
 
     public cutoffAttempts: number;
+
+    public timezone: string;
 }

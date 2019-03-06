@@ -16,6 +16,17 @@ export function authMiddleWare(req, res, next) {
             scope: keys.wca.prod.scope,
             userAgent: keys.wca.prod.user_agent
         }, loginCallback));
+    } else if (process.env.NODE_ENV === "test") {
+        passport.use(new WCAStrategy({
+            clientID: keys.wca.test.client_id,
+            clientSecret: keys.wca.test.client_secret,
+            callbackURL: keys.wca.test.redirect_uri,
+            scope: keys.wca.test.scope,
+            userAgent: keys.wca.test.user_agent,
+            authorizationURL: 'https://staging.worldcubeassociation.org/oauth/authorize',
+            tokenURL: 'https://staging.worldcubeassociation.org/oauth/token',
+            userProfileURL: 'https://staging.worldcubeassociation.org/api/v0/me'
+        }, loginCallback));
     } else {
         passport.use(new WCAStrategy({
             clientID: keys.wca.dev.client_id,

@@ -74,7 +74,7 @@ function addRoutes() {
 }
 
 function addStaticFiles() {
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === "production" || process.env.NODE_ENV==="test") {
         //serve static files from client folder
         app.use(express.static(path.join(__dirname, "/../client")));
         //serve client routes

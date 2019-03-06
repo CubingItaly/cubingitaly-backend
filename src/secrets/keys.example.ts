@@ -7,6 +7,13 @@ export const keys = {
             client_id: "client id",
             client_secret: "client secret"
         },
+        test:{
+            redirect_uri: "http://localhost:4200/api/v0/auth/wca/callback",
+            user_agent: "http://localhost:4200",
+            scope: "public",
+            client_id: "client id",
+            client_secret: "client secret"
+        },
         dev: {
             redirect_uri: "http://localhost:4200/api/v0/auth/wca/callback",
             user_agent: "http://localhost:4200",

@@ -38,11 +38,27 @@ async function isOrganizerOrDelegate(req, res, next) {
  */
 router.get("/:id/wca", verifyLogin, isOrganizerOrDelegate, async (req, res) => {
     scheduleRequests[getUser(req).id] = req.params.id;
-    res.redirect(`https://staging.worldcubeassociation.org/oauth/authorize?client_id=${keys.wca.dev.client_id}&response_type=code&redirect_uri=http://localhost:4200/api/v0/competitions/schedule/wca/callback&scope=manage_competitions`);
+    if (process.env.NODE_ENV === "production") {
+        res.redirect(`https://staging.worldcubeassociation.org/oauth/authorize?client_id=${keys.wca.dev.client_id}&response_type=code&redirect_uri=${keys.wca.prod.user_agent}/api/v0/competitions/schedule/wca/callback&scope=manage_competitions`);
+    } else if (process.env.NODE_ENV === "test") {
+        res.redirect(`https://staging.worldcubeassociation.org/oauth/authorize?client_id=${keys.wca.dev.client_id}&response_type=code&redirect_uri=${keys.wca.test.user_agent}/api/v0/competitions/schedule/wca/callback&scope=manage_competitions`);
+    }
+    else {
+        res.redirect(`https://staging.worldcubeassociation.org/oauth/authorize?client_id=${keys.wca.dev.client_id}&response_type=code&redirect_uri=${keys.wca.dev.user_agent}/api/v0/competitions/schedule/wca/callback&scope=manage_competitions`);
+    }
 });
 
 router.get("/wca/callback", verifyLogin, async (req, res) => {
     let code = req.query.code;
+    let useragent: string;
+    if (process.env.NODE_ENV === "production") {
+        useragent = keys.wca.prod.user_agent;
+    } else if (process.env.NODE_ENV === "test") {
+        useragent = keys.wca.test.user_agent;
+    }
+    else {
+        useragent = keys.wca.dev.user_agent;
+    }
     if (code) {
         let body = await request({
             method: 'POST',
@@ -50,7 +66,7 @@ router.get("/wca/callback", verifyLogin, async (req, res) => {
             body: {
                 grant_type: 'authorization_code',
                 code: code,
-                redirect_uri: 'http://localhost:4200/api/v0/competitions/schedule/wca/callback',
+                redirect_uri: `${useragent}/api/v0/competitions/schedule/wca/callback`,
                 client_id: keys.wca.dev.client_id,
                 client_secret: keys.wca.dev.client_secret
             },
@@ -118,7 +134,6 @@ async function scheduleParser(wcif): Promise<ScheduleModel[]> {
     scheduleRows = sortScheduleRows(scheduleRows);
 
     let schedule: ScheduleModel[] = getScheduleFromRows(scheduleRows);
-    schedule = getScheduleFromRows(scheduleRows);
     return schedule;
 }
 
@@ -141,16 +156,18 @@ function getScheduleFromRows(scheduleRows: ScheduleRowModel[]): ScheduleModel[] 
 
 function sortScheduleRows(scheduleRows: ScheduleRowModel[]): ScheduleRowModel[] {
     return scheduleRows.sort((a: ScheduleRowModel, b: ScheduleRowModel) => {
-        if (a.startDate > b.startDate) {
+        if (a.startDate > b.startDate)
             return 1;
-        } else if (a.startDate < b.startDate) {
+        if (a.startDate < b.startDate)
             return -1;
-        }
-        if (a.endDate > b.endDate) {
+        if (a.start > b.start)
             return 1;
-        } else if (a.endDate < b.endDate) {
+        if (a.start < b.start)
             return -1;
-        }
+        if (a.end > b.end)
+            return 1;
+        if (a.end < b.end)
+            return -1;
         return 0;
     });
 }
@@ -161,7 +178,7 @@ async function giveRoundNames(scheduleRows: ScheduleRowModel[]): Promise<Schedul
     for (let s of scheduleRows) {
         if (s.eventId !== "other") {
             let name = dbEvents.find((e: EventEntity) => e.id === s.eventId).name;
-            let round: string;
+            let round: any;
             let roundsNumber: number = scheduleRows.filter((e: ScheduleRowModel) => e.eventId === s.eventId).length - 1;
             round = roundNames[roundsNumber][s.roundId];
 
@@ -215,7 +232,7 @@ function addRoundInfo(events, scheduleRows: ScheduleRowModel[]): ScheduleRowMode
 function assignTimeLimit(round): string {
     if (round.timeLimit) {
         let cutoff: Date = new Date(round.timeLimit.centiseconds * 10);
-        let hours: string = `${cutoff.getHours() - 1}`;
+        let hours: string = `${cutoff.getUTCHours()}`;
         let minutes: string = `0${cutoff.getMinutes()}`.slice(-2);
         let seconds: string = `0${cutoff.getSeconds()}`.slice(-2);
         let result: string = "";
@@ -266,10 +283,10 @@ function getRows(venues): ScheduleRowModel[] {
         for (let r of v.rooms) {
             for (let a of r.activities) {
                 let row: ScheduleRowModel = new ScheduleRowModel();
-                row.startDate = new Date(a.startTime);
-                row.endDate = new Date(a.endTime);
-                row.start = row.startDate.toLocaleTimeString('it-it', { timeZone: v.timezone, minute: '2-digit', hour: '2-digit' });
-                row.end = row.endDate.toLocaleTimeString('it-it', { timeZone: v.timezone, minute: '2-digit', hour: '2-digit' });
+                row.startDate = new Date(new Date(a.startTime).toLocaleDateString('it-it', { timeZone: v.timezone }));
+                row.endDate = new Date(new Date(a.endTime).toLocaleDateString('it-it', { timeZone: v.timezone }));
+                row.start = new Date(a.startTime).toLocaleTimeString('it-it', { timeZone: v.timezone, hour12: false, minute: '2-digit', hour: '2-digit' });
+                row.end = new Date(a.endTime).toLocaleTimeString('it-it', { timeZone: v.timezone, hour12: false, minute: '2-digit', hour: '2-digit' });
                 row.room = r.name;
                 if ((a.activityCode).startsWith("other")) {
                     row.eventId = "other";
@@ -279,7 +296,7 @@ function getRows(venues): ScheduleRowModel[] {
                         row.name = otherNames[a.activityCode];
                     }
 
-                    let index: number = scheduleRows.findIndex((x: ScheduleRowModel) => (x.eventId === row.eventId && x.roundId === row.roundId && x.attemptId === row.attemptId && x.start === row.start));
+                    let index: number = scheduleRows.findIndex((x: ScheduleRowModel) => (x.eventId === row.eventId && x.roundId === row.roundId && x.attemptId === row.attemptId && x.startDate === row.startDate));
                     if (index < 0) {
                         scheduleRows.push(row);
                     }
