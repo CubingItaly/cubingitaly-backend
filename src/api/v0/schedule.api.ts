@@ -183,7 +183,7 @@ async function giveRoundNames(scheduleRows: ScheduleRowModel[]): Promise<Schedul
             round = roundNames[roundsNumber][s.roundId];
 
             if (s.cutoff) {
-                round += ` combinat` + (roundsNumber === 1 ? "a" : "o");
+                round += ` combinat` + ((roundsNumber + 1) === 1 ? "a" : "o");
             }
             s.name = name;
             s.roundName = round;
