@@ -50,8 +50,8 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
 
     public async getOfficialCompetitions(): Promise<CompetitionEntity[]> {
         return this.repository.find({
-            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'locationURL'],
-            order: { 'startDate': 'DESC' }, where: { 'isOfficial': true, 'isHidden': false }
+            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
+            order: { 'startDate': 'ASC' }, where: { 'isOfficial': true, 'isHidden': false }
         });
     }
 }
