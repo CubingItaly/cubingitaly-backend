@@ -119,7 +119,6 @@ async function sanitizeComp(req, res, next) {
     next();
 }
 
-
 router.get("/events", async (req, res) => {
     let eventsRepo: EventRepository = getCustomRepository(EventRepository);
     let events: EventEntity[] = await eventsRepo.getEvents();
@@ -149,12 +148,31 @@ router.get("/official", async (req, res) => {
     let competitions: CompetitionEntity[] = await getCompetitionRepository().getOfficialCompetitions();
     let model: CompetitionModel[] = competitions.map((c: CompetitionEntity) => c._transform());
     res.status(200).json(model);
-})
+});
+
+router.get("/upcoming", async (req, res) => {
+    let date: Date = req.query.date ? new Date(req.query.date) : new Date(new Date().toLocaleDateString("it-it", { timeZone: "Europe/Rome", day: "2-digit", month: "2-digit", year: "numeric" }));
+    let competitions: CompetitionEntity[] = await getCompetitionRepository().getUpcomingCompetitions(date);
+    let model: CompetitionModel[] = competitions.map((c: CompetitionEntity) => c._transform());
+    res.status(200).json(model);
+});
+
+router.get("/ongoing", async (req, res) => {
+    let date: Date = req.query.date ? new Date(req.query.date) : new Date(new Date().toLocaleDateString("it-it", { timeZone: "Europe/Rome", day: "2-digit", month: "2-digit", year: "numeric" }));
+    let competitions: CompetitionEntity[] = await getCompetitionRepository().getOnGoingCompetitions(date);
+    let model: CompetitionModel[] = competitions.map((c: CompetitionEntity) => c._transform());
+    res.status(200).json(model);
+});
 
 
 router.get("/:id", canViewCompetition, async (req, res) => {
     let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
     res.status(200).json(competition._transform());
+});
+
+router.get("/:id/exists", verifyLogin, canCreateCompetition, async (req, res) => {
+    let competition: boolean = await getCompetitionRepository().getIfCompetitionExist(req.params.id);
+    res.json({ "exists": competition });
 });
 
 router.post("/", verifyLogin, canCreateCompetition,
@@ -173,6 +191,7 @@ router.post("/", verifyLogin, canCreateCompetition,
 router.put("/:id", verifyLogin, canEditCompetition,
     idsMatch, requiredParametersArePresent, edoAreValid, sanitizeComp, async (req, res) => {
         let competition: CompetitionModel = Deserialize(req.body.competition, CompetitionModel);
+        console.log(competition);
         let entity: CompetitionEntity = new CompetitionEntity();
         entity._assimilate(competition);
         try {

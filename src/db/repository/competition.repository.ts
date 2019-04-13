@@ -1,7 +1,6 @@
 import { BaseCommonRepository } from "../BaseCommonRepository";
-import { EntityRepository, getCustomRepository, MoreThan } from "typeorm";
+import { EntityRepository, getCustomRepository, MoreThan, LessThanOrEqual, MoreThanOrEqual, } from "typeorm";
 import { CompetitionEntity } from "../entity/competition.entity";
-import { DirectionsRepository } from "./competition/directions.repository";
 import { RegistrationRepository } from "./competition/registration.repository";
 import { RegistrationEntity } from "../entity/competition/registration.entity";
 
@@ -45,13 +44,34 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
     }
 
     public async announcerUpdateCompetition(competition: CompetitionEntity): Promise<CompetitionEntity> {
-        return this.repository.save(competition);
+        let regRepo: RegistrationRepository = getCustomRepository(RegistrationRepository);
+        let reg: RegistrationEntity = await regRepo.getRegistrationByCompetition(competition);
+        if (reg.isComplete) {
+            return this.repository.save(competition);
+        }
+        else {
+            throw new Error("Registration is not complete");
+        }
     }
 
     public async getOfficialCompetitions(): Promise<CompetitionEntity[]> {
         return this.repository.find({
             select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
             order: { 'startDate': 'ASC' }, where: { 'isOfficial': true, 'isHidden': false }
+        });
+    }
+
+    public async getUpcomingCompetitions(date: Date): Promise<CompetitionEntity[]> {
+        return this.repository.find({
+            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
+            order: { 'startDate': 'ASC' }, where: { 'isOfficial': true, 'isHidden': false, 'startDate': MoreThan(date) }
+        });
+    }
+
+    public async getOnGoingCompetitions(date: Date): Promise<CompetitionEntity[]> {
+        return this.repository.find({
+            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
+            order: { 'startDate': 'ASC' }, where: { 'isOfficial': true, 'isHidden': false, 'startDate': LessThanOrEqual(date), 'endDate': MoreThanOrEqual(date) }
         });
     }
 }

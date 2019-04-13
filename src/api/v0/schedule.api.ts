@@ -38,44 +38,68 @@ async function isOrganizerOrDelegate(req, res, next) {
  */
 router.get("/:id/wca", verifyLogin, isOrganizerOrDelegate, async (req, res) => {
     scheduleRequests[getUser(req).id] = req.params.id;
+    let wcaUrl: string;
+    let clientId: string;
+    let redirectUrl: string;
     if (process.env.NODE_ENV === "production") {
-        res.redirect(`https://staging.worldcubeassociation.org/oauth/authorize?client_id=${keys.wca.dev.client_id}&response_type=code&redirect_uri=${keys.wca.prod.user_agent}/api/v0/competitions/schedule/wca/callback&scope=manage_competitions`);
+        wcaUrl = keys.wca.prod.wca_website;
+        clientId = keys.wca.prod.client_id;
+        redirectUrl = keys.wca.prod.schedule_redirect_uri;
     } else if (process.env.NODE_ENV === "test") {
-        res.redirect(`https://staging.worldcubeassociation.org/oauth/authorize?client_id=${keys.wca.dev.client_id}&response_type=code&redirect_uri=${keys.wca.test.user_agent}/api/v0/competitions/schedule/wca/callback&scope=manage_competitions`);
+        wcaUrl = keys.wca.test.wca_website;
+        clientId = keys.wca.test.client_id;
+        redirectUrl = keys.wca.test.schedule_redirect_uri;
     }
     else {
-        res.redirect(`https://staging.worldcubeassociation.org/oauth/authorize?client_id=${keys.wca.dev.client_id}&response_type=code&redirect_uri=${keys.wca.dev.user_agent}/api/v0/competitions/schedule/wca/callback&scope=manage_competitions`);
+        wcaUrl = keys.wca.dev.wca_website;
+        clientId = keys.wca.dev.client_id;
+        redirectUrl = keys.wca.dev.schedule_redirect_uri;
     }
+    let redirectUser: string = `${wcaUrl}/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUrl}&scope=manage_competitions`;
+    res.redirect(redirectUser);
 });
 
 router.get("/wca/callback", verifyLogin, async (req, res) => {
     let code = req.query.code;
-    let useragent: string;
+    let redirectUrl: string;
+    let url: string;
+    let clientId: string;
+    let clientSecret: string;
     if (process.env.NODE_ENV === "production") {
-        useragent = keys.wca.prod.user_agent;
+        redirectUrl = keys.wca.prod.schedule_redirect_uri;
+        url = keys.wca.prod.wca_website;
+        clientId = keys.wca.prod.client_id;
+        clientSecret = keys.wca.prod.client_secret;
     } else if (process.env.NODE_ENV === "test") {
-        useragent = keys.wca.test.user_agent;
+        redirectUrl = keys.wca.test.schedule_redirect_uri;
+        url = keys.wca.prod.wca_website;
+        url = keys.wca.test.wca_website;
+        clientId = keys.wca.test.client_id;
+        clientSecret = keys.wca.test.client_secret;
     }
     else {
-        useragent = keys.wca.dev.user_agent;
+        redirectUrl = keys.wca.dev.schedule_redirect_uri;
+        url = keys.wca.dev.wca_website;
+        clientId = keys.wca.dev.client_id;
+        clientSecret = keys.wca.dev.client_secret;
     }
     if (code) {
         let body = await request({
             method: 'POST',
-            url: 'https://staging.worldcubeassociation.org/oauth/token',
+            url: `${url}/oauth/token`,
             body: {
                 grant_type: 'authorization_code',
                 code: code,
-                redirect_uri: `${useragent}/api/v0/competitions/schedule/wca/callback`,
-                client_id: keys.wca.dev.client_id,
-                client_secret: keys.wca.dev.client_secret
+                redirect_uri: `${redirectUrl}`,
+                client_id: clientId,
+                client_secret: clientSecret
             },
             json: true
         });
         if (body.access_token) {
             let token = body.access_token;
             let wcif = await request({
-                url: `https://staging.worldcubeassociation.org/api/v0/competitions/${scheduleRequests[getUser(req).id]}/wcif`,
+                url: `${url}/api/v0/competitions/${scheduleRequests[getUser(req).id]}/wcif`,
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-type': 'application/json'

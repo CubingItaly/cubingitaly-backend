@@ -41,7 +41,7 @@
       "request": "^2.88.0",
       "request-promise-native": "^1.0.7",
       "sanitize-html": "^1.19.3",
-      "typeorm": "0.2.8",
+      "typeorm": "^0.2.16",
       "typeorm-store": "^1.2.0"
    },
    "scripts": {

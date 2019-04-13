@@ -7,6 +7,7 @@
     "database": "example",
     "synchronize": true,
     "logging": false,
+    "timezone": "Z",
     "entities": [
         "src/db/entity/**/*.ts",
         "server/db/entity/**/*.js"

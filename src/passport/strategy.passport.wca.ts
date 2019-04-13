@@ -12,7 +12,7 @@ export function authMiddleWare(req, res, next) {
         passport.use(new WCAStrategy({
             clientID: keys.wca.prod.client_id,
             clientSecret: keys.wca.prod.client_secret,
-            callbackURL: keys.wca.prod.redirect_uri,
+            callbackURL: keys.wca.prod.login_redirect_uri,
             scope: keys.wca.prod.scope,
             userAgent: keys.wca.prod.user_agent
         }, loginCallback));
@@ -20,7 +20,7 @@ export function authMiddleWare(req, res, next) {
         passport.use(new WCAStrategy({
             clientID: keys.wca.test.client_id,
             clientSecret: keys.wca.test.client_secret,
-            callbackURL: keys.wca.test.redirect_uri,
+            callbackURL: keys.wca.test.login_redirect_uri,
             scope: keys.wca.test.scope,
             userAgent: keys.wca.test.user_agent,
             authorizationURL: 'https://staging.worldcubeassociation.org/oauth/authorize',
@@ -31,7 +31,7 @@ export function authMiddleWare(req, res, next) {
         passport.use(new WCAStrategy({
             clientID: keys.wca.dev.client_id,
             clientSecret: keys.wca.dev.client_secret,
-            callbackURL: keys.wca.dev.redirect_uri,
+            callbackURL: keys.wca.dev.login_redirect_uri,
             scope: keys.wca.dev.scope,
             userAgent: keys.wca.dev.user_agent,
             authorizationURL: 'https://staging.worldcubeassociation.org/oauth/authorize',
