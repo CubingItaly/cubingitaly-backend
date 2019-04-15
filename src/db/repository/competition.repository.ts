@@ -1,5 +1,5 @@
 import { BaseCommonRepository } from "../BaseCommonRepository";
-import { EntityRepository, getCustomRepository, MoreThan, LessThanOrEqual, MoreThanOrEqual, } from "typeorm";
+import { EntityRepository, getCustomRepository, MoreThan, LessThanOrEqual, MoreThanOrEqual, LessThan, } from "typeorm";
 import { CompetitionEntity } from "../entity/competition.entity";
 import { RegistrationRepository } from "./competition/registration.repository";
 import { RegistrationEntity } from "../entity/competition/registration.entity";
@@ -64,14 +64,21 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
     public async getUpcomingCompetitions(date: Date): Promise<CompetitionEntity[]> {
         return this.repository.find({
             select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
-            order: { 'startDate': 'ASC' }, where: { 'isOfficial': true, 'isHidden': false, 'startDate': MoreThan(date) }
+            order: { 'startDate': 'ASC', endDate: 'ASC' }, where: { 'isOfficial': true, 'isHidden': false, 'startDate': MoreThan(date) }
         });
     }
 
     public async getOnGoingCompetitions(date: Date): Promise<CompetitionEntity[]> {
         return this.repository.find({
             select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
-            order: { 'startDate': 'ASC' }, where: { 'isOfficial': true, 'isHidden': false, 'startDate': LessThanOrEqual(date), 'endDate': MoreThanOrEqual(date) }
+            order: { 'startDate': 'ASC',endDate:'ASC' }, where: { 'isOfficial': true, 'isHidden': false, 'startDate': LessThanOrEqual(date), 'endDate': MoreThanOrEqual(date) }
+        });
+    }
+
+    public async getPastCompetitions(date: Date): Promise<CompetitionEntity[]> {
+        return this.repository.find({
+            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
+            order: { 'startDate': 'DESC', 'endDate': 'DESC' }, where: { 'isOfficial': true, 'isHidden': false, 'endDate': LessThan(date) }
         });
     }
 }

@@ -164,6 +164,13 @@ router.get("/ongoing", async (req, res) => {
     res.status(200).json(model);
 });
 
+router.get("/past", async (req, res) => {
+    let date: Date = req.query.date ? new Date(req.query.date) : new Date(new Date().toLocaleDateString("it-it", { timeZone: "Europe/Rome", day: "2-digit", month: "2-digit", year: "numeric" }));
+    let competitions: CompetitionEntity[] = await getCompetitionRepository().getPastCompetitions(date);
+    let model: CompetitionModel[] = competitions.map((c: CompetitionEntity) => c._transform());
+    res.status(200).json(model);
+});
+
 
 router.get("/:id", canViewCompetition, async (req, res) => {
     let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
