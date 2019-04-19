@@ -3,6 +3,7 @@ import { EntityRepository, getCustomRepository, MoreThan, LessThanOrEqual, MoreT
 import { CompetitionEntity } from "../entity/competition.entity";
 import { RegistrationRepository } from "./competition/registration.repository";
 import { RegistrationEntity } from "../entity/competition/registration.entity";
+import { UserEntity } from "../entity/user.entity";
 
 
 @EntityRepository(CompetitionEntity)
@@ -71,7 +72,7 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
     public async getOnGoingCompetitions(date: Date): Promise<CompetitionEntity[]> {
         return this.repository.find({
             select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
-            order: { 'startDate': 'ASC',endDate:'ASC' }, where: { 'isOfficial': true, 'isHidden': false, 'startDate': LessThanOrEqual(date), 'endDate': MoreThanOrEqual(date) }
+            order: { 'startDate': 'ASC', endDate: 'ASC' }, where: { 'isOfficial': true, 'isHidden': false, 'startDate': LessThanOrEqual(date), 'endDate': MoreThanOrEqual(date) }
         });
     }
 
@@ -79,6 +80,25 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
         return this.repository.find({
             select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
             order: { 'startDate': 'DESC', 'endDate': 'DESC' }, where: { 'isOfficial': true, 'isHidden': false, 'endDate': LessThan(date) }
+        });
+    }
+
+    public async getMyCompetitions(user: UserEntity): Promise<CompetitionEntity[]> {
+        return this.repository.createQueryBuilder("comp")
+            .select(['comp.id', 'comp.name', 'comp.country', 'comp.city', 'comp.startDate', 'comp.endDate', 'comp.location', 'comp.address'])
+            .innerJoin("comp.organizers", "orga")
+            .innerJoin("comp.delegates", "deleg")
+            .where("orga.id = :id", { id: user.id })
+            .orWhere("deleg.id = :id", { id: user.id })
+            .orderBy("comp.startDate", "DESC")
+            .addOrderBy("comp.endDate", "DESC")
+            .getMany();
+    }
+
+    public async getAdminCompetitions(): Promise<CompetitionEntity[]> {
+        return this.repository.find({
+            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
+            order: { 'startDate': 'DESC', 'endDate': 'DESC' }
         });
     }
 }

@@ -6,7 +6,7 @@ import { PaymentMeanEntity } from "../../entity/competition/paymentmean.entity";
 @EntityRepository(PaymentMeanEntity)
 export class PaymentMeanRepository extends BaseCommonRepository<PaymentMeanEntity> {
 
-    private meansId: string[] = ["cc", "paypal", "cash"];
+    private meansId: string[] = ["card", "paypal", "cash"];
     private meansName: string[] = ["Carta di credito", "PayPal", "Contanti"];
     private meansDetails: string[] = ["", "", ""];
 

@@ -68,3 +68,12 @@ export async function canAnnounceCompetition(req, res, next) {
         sendError(res, 403, "Error! You don't have enough permissions to perform the requested action.");
     }
 }
+
+export async function canAdminCompetitions(req, res, next) {
+    let user: UserModel = getUser(req);
+    if (user.canAdminCompetitions()) {
+        next();
+    } else {
+        sendError(res, 403, "Error! You don't have enough permissions to perform the requested action.");
+    }
+}

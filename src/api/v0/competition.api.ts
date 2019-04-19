@@ -3,9 +3,9 @@ import { sendError } from "../../shared/error.utils";
 import { Router } from "express";
 //# we need this because otherwise passport doesn't work
 import * as passport from "passport";
-import { canViewCompetition, getCompetitionRepository, canCreateCompetition, canEditCompetition, canAnnounceCompetition, getRegistrationRepository, getDirectionsRepository, getScheduleRepository } from '../../shared/competition.utils';
+import { canViewCompetition, getCompetitionRepository, canCreateCompetition, canEditCompetition, canAnnounceCompetition, getRegistrationRepository, getDirectionsRepository, getScheduleRepository, canAdminCompetitions } from '../../shared/competition.utils';
 import { CompetitionEntity } from "../../db/entity/competition.entity";
-import { verifyLogin } from "../../shared/login.utils";
+import { verifyLogin, getUser } from "../../shared/login.utils";
 import { CompetitionModel } from "../../models/classes/competition.model";
 import { Deserialize } from "cerialize";
 import { UserModel } from "../../models/classes/user.model";
@@ -26,6 +26,7 @@ import { DirectionsEntity } from "../../db/entity/competition/directions.entity"
 import { DirectionsModel } from "../../models/classes/competition/directions.model";
 import { ScheduleEntity } from "../../db/entity/competition/schedule.entity";
 import { ScheduleModel } from "../../models/classes/competition/schedule.model";
+import { UserEntity } from "../../db/entity/user.entity";
 
 const router: Router = Router();
 
@@ -52,6 +53,7 @@ function requiredParametersArePresent(req, res, next) {
 }
 
 async function isIdNew(req, res, next) {
+    req.body.competition.id = req.body.competition.id.replace(/\s/g, '');
     let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.body.competition.id);
     if (!competition) {
         next();
@@ -87,7 +89,10 @@ async function edoAreValid(req, res, next) {
             for (let u of delegates) {
                 let isDelegate: boolean = await userRepo.checkIfIsDelegate(u.id);
                 if (!isDelegate) {
-                    ok = false;
+                    let comp: CompetitionEntity = await getCompetitionRepository().getCompetition(req.body.competition.id);
+                    if (comp && !comp.delegates.find((del: UserEntity) => del.id === u.id)) {
+                        ok = false;
+                    }
                 }
                 break;
             }
@@ -144,6 +149,23 @@ router.get("/paymentmeans", async (req, res) => {
 Competition APIs
 */
 
+
+router.get("/mine", verifyLogin, async (req, res) => {
+    let me: UserModel = getUser(req);
+    let entityMe: UserEntity = new UserEntity();
+    entityMe._assimilate(me);
+    let competitions: CompetitionEntity[] = await getCompetitionRepository().getMyCompetitions(entityMe);
+    let model: CompetitionModel[] = competitions.map((c: CompetitionEntity) => c._transform());
+    res.status(200).json(model);
+});
+
+router.get("/all", verifyLogin, canAdminCompetitions, async (req, res) => {
+    let me: UserModel = getUser(req);
+    let competitions: CompetitionEntity[] = await getCompetitionRepository().getAdminCompetitions();
+    let model: CompetitionModel[] = competitions.map((c: CompetitionEntity) => c._transform());
+    res.status(200).json(model);
+});
+
 router.get("/official", async (req, res) => {
     let competitions: CompetitionEntity[] = await getCompetitionRepository().getOfficialCompetitions();
     let model: CompetitionModel[] = competitions.map((c: CompetitionEntity) => c._transform());
@@ -198,7 +220,6 @@ router.post("/", verifyLogin, canCreateCompetition,
 router.put("/:id", verifyLogin, canEditCompetition,
     idsMatch, requiredParametersArePresent, edoAreValid, sanitizeComp, async (req, res) => {
         let competition: CompetitionModel = Deserialize(req.body.competition, CompetitionModel);
-        console.log(competition);
         let entity: CompetitionEntity = new CompetitionEntity();
         entity._assimilate(competition);
         try {
@@ -355,8 +376,6 @@ router.post("/:id/directions", verifyLogin, canEditCompetition, directionsHasNoI
             entity = await getDirectionsRepository().createDirection(entity, competition);
             res.status(200).json(entity._transform());
         } catch (e) {
-
-            console.log(e);
             sendError(res, 400, "Bad request. Some attributes are missing.");
         }
     });
