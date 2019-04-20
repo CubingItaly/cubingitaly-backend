@@ -4,6 +4,7 @@ import { CompetitionEntity } from "../entity/competition.entity";
 import { RegistrationRepository } from "./competition/registration.repository";
 import { RegistrationEntity } from "../entity/competition/registration.entity";
 import { UserEntity } from "../entity/user.entity";
+import { ArticleRepository } from "./article.repository";
 
 
 @EntityRepository(CompetitionEntity)
@@ -48,11 +49,22 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
         let regRepo: RegistrationRepository = getCustomRepository(RegistrationRepository);
         let reg: RegistrationEntity = await regRepo.getRegistrationByCompetition(competition);
         if (reg.isComplete) {
-            return this.repository.save(competition);
+            let comp = await this.repository.save(competition);
+            if (comp.isOfficial && !comp.isHidden && !comp.articlePublished) {
+                this.postArticleAnnounce(comp);
+                //               comp.articlePublished = true;
+                return this.repository.save(comp);
+            } else {
+                return comp;
+            }
         }
         else {
             throw new Error("Registration is not complete");
         }
+    }
+
+    private async postArticleAnnounce(comp: CompetitionEntity): Promise<void> {
+        getCustomRepository(ArticleRepository).postCompetitionArticle(comp);
     }
 
     public async getOfficialCompetitions(): Promise<CompetitionEntity[]> {

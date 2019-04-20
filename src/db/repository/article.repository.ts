@@ -1,7 +1,10 @@
 import { BaseCommonRepository } from "../BaseCommonRepository";
-import { EntityRepository, Like } from "typeorm";
+import { EntityRepository, Like, getCustomRepository } from "typeorm";
 import { ArticleEntity } from "../entity/article.entity";
 import { UserEntity } from "../entity/user.entity";
+import { CompetitionEntity } from "../entity/competition.entity";
+import { UserRepository } from "./user.repository";
+import { ArticleCategoryRepository } from "./category.repository";
 
 
 @EntityRepository(ArticleEntity)
@@ -35,8 +38,8 @@ export class ArticleRepository extends BaseCommonRepository<ArticleEntity> {
     public async countPublicArticles(category: string): Promise<number> {
         if (category) {
             return this.repository.createQueryBuilder("article")
-                .innerJoin("article.categories","category")
-                .where("category.id = :category and article.isPublic = :isPublic", {category:category, isPublic:true})
+                .innerJoin("article.categories", "category")
+                .where("category.id = :category and article.isPublic = :isPublic", { category: category, isPublic: true })
                 .getCount();
         }
         return this.repository.count({ where: { isPublic: true } });
@@ -92,7 +95,7 @@ export class ArticleRepository extends BaseCommonRepository<ArticleEntity> {
      * @memberof ArticleRepository
      */
     public async checkIfArticleExists(id: string): Promise<boolean> {
-        let count: number= await this.repository.count({where: {id:id}});
+        let count: number = await this.repository.count({ where: { id: id } });
         return count > 0;
     }
 
@@ -245,4 +248,17 @@ export class ArticleRepository extends BaseCommonRepository<ArticleEntity> {
         return this.repository.count({ id: Like(id + "%") });
     }
 
+    public async postCompetitionArticle(competition: CompetitionEntity): Promise<void> {
+        let article: ArticleEntity = new ArticleEntity();
+        article.author = await getCustomRepository(UserRepository).getShortUserById(0);
+        article.lastEditor = article.author;
+        article.categories = [await getCustomRepository(ArticleCategoryRepository).getCategory("competizioni")];
+        article.title = competition.name;
+        article.summary = competition.getCompetitionSummary();
+        article.content = `<p>Visita il <a href="/competizioni/${competition.id}"> sito della gara </a> per scoprire come iscriverti e per trovare tutte le informazioni riguardo:</p> <ul><li>Categorie che si svolgeranno </li><li>Programma della gara</li > <li>Procedura di iscrizione </li><li>Apertura e chiusura delle registrazioni</li > <li>Costo di iscrizione </li><li>Come fare per assistere</li > <li>Indicazioni per raggiungere il luogo </li><li>Convenzioni</li > <li>E altro ancora! </li></ul > <figure class="image" > <a href="/competizioni/${competition.id}"><img src="/assets/images/visit-website.jpg" /></a> </figure>`
+        article.id = await this.generateId(competition.name);
+        article.isPublic = true;
+        article.publishDate = new Date();
+        this.repository.save(article);
+    }
 }

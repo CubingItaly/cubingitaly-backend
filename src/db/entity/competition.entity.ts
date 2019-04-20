@@ -9,6 +9,7 @@ import { UserEntity } from "./user.entity";
 import { UserModel } from "../../models/classes/user.model";
 import { ScheduleEntity } from "./competition/schedule.entity";
 import { ExtraTabEntity } from "./competition/extratab.entity";
+import { getCompetitionDates } from "../../shared/competition.dates.utils";
 
 @Entity()
 export class CompetitionEntity extends BaseEntity implements ITransformable<CompetitionModel> {
@@ -21,6 +22,9 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
 
     @Column({ nullable: true })
     public updateDate: Date;
+
+    @Column({ nullable: false, default: false })
+    public articlePublished: boolean;
 
     @Column()
     public name: string;
@@ -188,4 +192,21 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
         }
     }
 
+
+    public getCompetitionSummary(): string {
+        let summary: string;
+        const vowels: string = "aeiou";
+        if (vowels.indexOf((this.name.charAt(0).toLocaleLowerCase())) !== -1) {
+            summary = `L'${this.name} `;
+        } else {
+            summary = `Il ${this.name} `;
+        }
+        summary += `si svolgerà a ${this.city} ` + (this.province ? ` (${this.province}) ` : "");
+        summary += getCompetitionDates(this.startDate, this.endDate);
+        return summary;
+    }
+
+    public getCompetitionDescription(): string {
+        return "";
+    }
 }

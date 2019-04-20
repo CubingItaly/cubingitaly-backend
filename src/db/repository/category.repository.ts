@@ -18,6 +18,9 @@ export class ArticleCategoryRepository extends BaseCommonRepository<ArticleCateg
         {
             id: "interviste",
             name: "Interviste"
+        }, {
+            id: "competizioni",
+            name: "Competizioni"
         }
     ];
 
@@ -54,7 +57,7 @@ export class ArticleCategoryRepository extends BaseCommonRepository<ArticleCateg
 
 
     private async checkIfCategoryExist(id: string) {
-        let count: number= await this.repository.count({where: {id:id}});
+        let count: number = await this.repository.count({ where: { id: id } });
         return count > 0;
     }
 
@@ -65,7 +68,7 @@ export class ArticleCategoryRepository extends BaseCommonRepository<ArticleCateg
      * @memberof ArticleCategoryRepository
      */
     public async getCategories(): Promise<ArticleCategoryEntity[]> {
-        return this.repository.find({order: {id: "ASC"}});
+        return this.repository.find({ order: { id: "ASC" } });
     }
 
     /**

@@ -242,6 +242,7 @@ router.put("/:id/announce", verifyLogin, canAnnounceCompetition,
             getCompetitionRepository().updateDate(entity.id);
             res.status(200).json(entity._transform());
         } catch (e) {
+            console.log(e);
             sendError(res, 400, "Bad request. Some attributes are missing.");
         }
     });
