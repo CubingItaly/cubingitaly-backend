@@ -19,7 +19,7 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
     @CreateDateColumn()
     public createDate: Date;
 
-    @Column()
+    @Column({ nullable: true })
     public updateDate: Date;
 
     @Column()

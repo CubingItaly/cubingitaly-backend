@@ -269,13 +269,13 @@ async function allParametersAreOk(req, res, next) {
     ok = ok && (!r.registrationAtTheVenue || (r.registrationAtTheVenue && r.atTheVenueFee > 0));
     ok = ok && (!r.guestsPay || (r.guestsPay && r.guestsFee > 0));
     ok = ok && (!r.isRegistrationPaid || (r.isRegistrationPaid &&
-        (r.paymentMeans.findIndex((p: PaymentMeanModel) => p.id === "paypal") >= 0 || r.paymentMeans.findIndex((p: PaymentMeanModel) => p.id === "cc") >= 0 || r.paymentMeans.findIndex((p: PaymentMeanModel) => p.id === "cash") >= 0)));
+        (r.paymentMeans.findIndex((p: PaymentMeanModel) => p.id === "paypal") >= 0 || r.paymentMeans.findIndex((p: PaymentMeanModel) => p.id === "card") >= 0 || r.paymentMeans.findIndex((p: PaymentMeanModel) => p.id === "cash") >= 0)));
     ok = ok && (!r.isRegistrationPaid || (r.isRegistrationPaid
         && (!r.paymentMeans.find((p: PaymentMeanModel) => p.id === "paypal")
             || (r.paymentMeans.find((p: PaymentMeanModel) => p.id === "paypal") && r.paypalLink.length > 0))));
     ok = ok && (!r.isRegistrationPaid || (r.isRegistrationPaid && (!((r.paymentMeans.find((p: PaymentMeanModel) => p.id === "paypal"))
-        || r.paymentMeans.find((p: PaymentMeanModel) => p.id === "cc"))
-        || (((r.paymentMeans.find((p: PaymentMeanModel) => p.id === "paypal")) || r.paymentMeans.find((p: PaymentMeanModel) => p.id === "cc"))
+        || r.paymentMeans.find((p: PaymentMeanModel) => p.id === "card"))
+        || (((r.paymentMeans.find((p: PaymentMeanModel) => p.id === "paypal")) || r.paymentMeans.find((p: PaymentMeanModel) => p.id === "card"))
             && (!r.refundAvailable || (r.refundAvailable && r.refundPolicy.length > 0))))));
     if (ok) {
         next();
