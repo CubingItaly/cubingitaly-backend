@@ -52,7 +52,7 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
             let comp = await this.repository.save(competition);
             if (comp.isOfficial && !comp.isHidden && !comp.articlePublished) {
                 this.postArticleAnnounce(comp);
-                //               comp.articlePublished = true;
+                comp.articlePublished = true;
                 return this.repository.save(comp);
             } else {
                 return comp;
