@@ -65,7 +65,7 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
     public isLimitReached: boolean;
 
     @Column({ default: false })
-    public isRegistrationOpen: boolean;
+    public isRegistrationClosed: boolean;
 
     @Column({ nullable: true })
     public paypalLink: string;
@@ -76,8 +76,8 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
     @Column({ type: "text", nullable: true })
     public registrationExtraInfo: string;
 
-    @Column({default:false})
-    public isComplete:boolean;
+    @Column({ default: false })
+    public isComplete: boolean;
 
     @OneToMany(type => RefundPolicyEntity, policy => policy.registration, { cascade: true, eager: true })
     public refundPolicy: RefundPolicyEntity[];
@@ -110,11 +110,11 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
         model.guestsNeedToRegister = this.guestsNeedToRegister;
         model.guestsDetails = this.guestsDetails;
         model.isLimitReached = this.isLimitReached;
-        model.isRegistrationOpen = this.isRegistrationOpen;
+        model.isRegistrationClosed = this.isRegistrationClosed;
         model.paypalLink = this.paypalLink;
         model.refundAvailable = this.refundAvailable;
         model.registrationExtraInfo = this.registrationExtraInfo;
-        model.isComplete=this.isComplete;
+        model.isComplete = this.isComplete;
         if (this.refundPolicy) {
             model.refundPolicy = this.refundPolicy.map((p: RefundPolicyEntity) => p._transform());
         }
@@ -144,7 +144,7 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
         this.guestsNeedToRegister = origin.guestsNeedToRegister;
         this.guestsDetails = origin.guestsDetails;
         this.isLimitReached = origin.isLimitReached;
-        this.isRegistrationOpen = origin.isRegistrationOpen;
+        this.isRegistrationClosed = origin.isRegistrationClosed;
         this.paypalLink = origin.paypalLink;
         this.refundAvailable = origin.refundAvailable;
         this.registrationExtraInfo = origin.registrationExtraInfo;

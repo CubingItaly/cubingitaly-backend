@@ -211,6 +211,7 @@ router.post("/", verifyLogin, canCreateCompetition,
         entity._assimilate(competition);
         try {
             entity = await getCompetitionRepository().createCompetition(entity);
+            getCompetitionRepository().updateDate(entity.id);
             res.status(200).json(entity._transform());
         } catch (e) {
             sendError(res, 400, "Bad request. Some attributes are missing.");
@@ -224,6 +225,7 @@ router.put("/:id", verifyLogin, canEditCompetition,
         entity._assimilate(competition);
         try {
             entity = await getCompetitionRepository().editorUpdateCompetition(entity);
+            getCompetitionRepository().updateDate(entity.id);
             res.status(200).json(entity._transform());
         } catch (e) {
             sendError(res, 400, "Bad request. Some attributes are missing.");
@@ -237,6 +239,7 @@ router.put("/:id/announce", verifyLogin, canAnnounceCompetition,
         entity._assimilate(competition);
         try {
             entity = await getCompetitionRepository().announcerUpdateCompetition(entity);
+            getCompetitionRepository().updateDate(entity.id);
             res.status(200).json(entity._transform());
         } catch (e) {
             sendError(res, 400, "Bad request. Some attributes are missing.");
@@ -308,6 +311,7 @@ router.put("/:id/registrations", verifyLogin, canEditCompetition, regBelongsToCo
     entity._assimilate(registration);
     try {
         entity = await getRegistrationRepository().updateRegistration(entity);
+        getCompetitionRepository().updateDate(req.params.id);
         res.status(200).json(entity._transform());
     } catch (e) {
         sendError(res, 400, "Bad request. Some attributes are missing.");
@@ -374,6 +378,7 @@ router.post("/:id/directions", verifyLogin, canEditCompetition, directionsHasNoI
         entity._assimilate(directions);
         try {
             entity = await getDirectionsRepository().createDirection(entity, competition);
+            getCompetitionRepository().updateDate(req.params.id);
             res.status(200).json(entity._transform());
         } catch (e) {
             sendError(res, 400, "Bad request. Some attributes are missing.");
@@ -388,6 +393,7 @@ router.put("/:id/directions/:did", verifyLogin, canEditCompetition, didMatch,
         entity._assimilate(directions);
         try {
             entity = await getDirectionsRepository().createDirection(entity, competition);
+            getCompetitionRepository().updateDate(req.params.id);
             res.status(200).json(entity._transform());
         } catch (e) {
             sendError(res, 400, "Bad request. Some attributes are missing.");
@@ -396,6 +402,7 @@ router.put("/:id/directions/:did", verifyLogin, canEditCompetition, didMatch,
 
 router.delete("/:id/directions/:did", verifyLogin, canEditCompetition, dirBelongsToComp, async (req, res) => {
     await getDirectionsRepository().deleteDirection(req.params.did);
+    getCompetitionRepository().updateDate(req.params.id);
     res.status(200).send({});
 });
 

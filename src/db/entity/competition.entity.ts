@@ -1,5 +1,5 @@
 import { ITransformable } from "../transformable";
-import { BaseEntity, Column, Entity, PrimaryColumn, ManyToMany, OneToMany, ManyToOne, PrimaryGeneratedColumn, OneToOne, JoinTable } from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryColumn, ManyToMany, OneToMany, ManyToOne, PrimaryGeneratedColumn, OneToOne, JoinTable, UpdateDateColumn, CreateDateColumn } from "typeorm";
 import { CompetitionModel } from '../../models/classes/competition.model';
 import { DirectionsEntity } from "./competition/directions.entity";
 import { RegistrationEntity } from "./competition/registration.entity";
@@ -8,12 +8,19 @@ import { EventModel } from "../../models/classes/competition/event.model";
 import { UserEntity } from "./user.entity";
 import { UserModel } from "../../models/classes/user.model";
 import { ScheduleEntity } from "./competition/schedule.entity";
+import { ExtraTabEntity } from "./competition/extratab.entity";
 
 @Entity()
 export class CompetitionEntity extends BaseEntity implements ITransformable<CompetitionModel> {
 
     @PrimaryColumn()
     public id: string;
+
+    @CreateDateColumn()
+    public createDate: Date;
+
+    @Column()
+    public updateDate: Date;
 
     @Column()
     public name: string;
@@ -32,6 +39,9 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
 
     @Column()
     public country: string;
+
+    @Column({ nullable: true })
+    public region: string
 
     @Column({ nullable: true })
     public province: string;
@@ -59,6 +69,9 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
 
     @Column({ nullable: true })
     public logoURL: string;
+
+    @Column({ nullable: true })
+    public liveResultsURL: string;
 
     @Column()
     public contactName: string;
@@ -90,6 +103,9 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
     @OneToMany(type => ScheduleEntity, schedule => schedule.competition)
     public schedule: ScheduleEntity[];
 
+    @OneToMany(type => ExtraTabEntity, tab => tab.competition)
+    public extraTabs: ExtraTabEntity[];
+
 
     _transform(): CompetitionModel {
         let model: CompetitionModel = new CompetitionModel();
@@ -100,6 +116,7 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
         model.startDate = this.startDate;
         model.endDate = this.endDate;
         model.country = this.country;
+        model.region = this.region;
         model.province = this.province;
         model.city = this.city;
         model.address = this.address;
@@ -109,6 +126,7 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
         model.locationDetails = this.locationDetails;
         model.coordinates = this.coordinates;
         model.logoURL = this.logoURL;
+        model.liveResultsURL = this.liveResultsURL;
         model.contactName = this.contactName;
         model.contactEmail = this.contactEmail;
         model.extraInformation = this.extraInformation;
@@ -132,6 +150,7 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
         this.startDate = origin.startDate;
         this.endDate = origin.endDate;
         this.country = origin.country;
+        this.region = origin.region;
         this.province = origin.province;
         this.city = origin.city;
         this.address = origin.address;
@@ -141,6 +160,7 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
         this.locationDetails = origin.locationDetails;
         this.coordinates = origin.coordinates;
         this.logoURL = origin.logoURL;
+        this.liveResultsURL = origin.liveResultsURL;
         this.contactName = origin.contactName;
         this.contactEmail = origin.contactEmail;
         this.extraInformation = origin.extraInformation;

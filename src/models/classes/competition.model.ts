@@ -29,6 +29,9 @@ export class CompetitionModel {
     public province?: string;
 
     @autoserialize
+    public region?: string;
+
+    @autoserialize
     public city: string;
 
     @autoserialize
@@ -60,6 +63,9 @@ export class CompetitionModel {
 
     @autoserialize
     public extraInformation?: string;
+
+    @autoserialize
+    public liveResultsURL?: string;
 
     @autoserializeAs(UserModel)
     public organizers?: UserModel[];

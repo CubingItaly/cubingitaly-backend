@@ -101,4 +101,13 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
             order: { 'startDate': 'DESC', 'endDate': 'DESC' }
         });
     }
+
+    public async updateDate(id: string): Promise<void> {
+        let competition: CompetitionEntity = await this.repository.findOne(id);
+        if (competition) {
+            competition.updateDate = new Date();
+            await this.repository.save(competition);
+        }
+        return;
+    }
 }

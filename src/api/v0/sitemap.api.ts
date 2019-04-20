@@ -7,6 +7,8 @@ import { TutorialRepository } from "../../db/repository/tutorial.repository";
 import { TutorialEntity } from "../../db/entity/tutorial.entity";
 import { FAQRepository } from "../../db/repository/faq.repository";
 import { FAQEntity } from "../../db/entity/faq.entity";
+import { CompetitionRepository } from "../../db/repository/competition.repository";
+import { CompetitionEntity } from "../../db/entity/competition.entity";
 //# we need this because otherwise passport doesn't work
 const router: Router = Router();
 
@@ -27,7 +29,7 @@ let typeBase = {
     homepage: "",
     article: "articoli/",
     tutorial: "tutorial/",
-    competitions: "competizioni/"
+    competition: "competizioni/"
 }
 
 function getArticlesRepo(): ArticleRepository {
@@ -36,6 +38,10 @@ function getArticlesRepo(): ArticleRepository {
 
 function getTutorialRepo(): TutorialRepository {
     return getCustomRepository(TutorialRepository);
+}
+
+function getCompetitionRepo(): CompetitionRepository {
+    return getCustomRepository(CompetitionRepository);
 }
 
 function getStaticPages(): urlClass[] {
@@ -53,7 +59,11 @@ async function getFAQPage(): Promise<urlClass> {
     let url: urlClass = new urlClass();
     url.loc = "https://www.cubingitaly.org/faq";
     let tempFAQ: FAQEntity = await getCustomRepository(FAQRepository).getLastMod();
-    url.lastmod = tempFAQ.updateDate.toISOString();
+    if (tempFAQ) {
+        url.lastmod = tempFAQ.updateDate.toISOString();
+    } else {
+        url.lastmod = new Date().toISOString();
+    }
     return url;
 }
 
@@ -84,6 +94,16 @@ router.get("/", async (req, res) => {
     for (let t of tutorials) {
         temp = new urlClass();
         temp.import(t, "tutorial");
+        pages.push(temp);
+    }
+
+    let competitions: CompetitionEntity[] = await (getCompetitionRepo()).getOfficialCompetitions();
+
+    for (let c of competitions) {
+        temp = new urlClass();
+        if (!c.updateDate)
+            c.updateDate = new Date();
+        temp.import(c, "competition");
         pages.push(temp);
     }
 

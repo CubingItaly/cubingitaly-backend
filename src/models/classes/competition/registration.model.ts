@@ -59,7 +59,7 @@ export class RegistrationModel {
     public isLimitReached: boolean;
 
     @autoserialize
-    public isRegistrationOpen: boolean;
+    public isRegistrationClosed: boolean;
 
     @autoserialize
     public paypalLink?: string;
