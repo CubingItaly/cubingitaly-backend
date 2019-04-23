@@ -53,13 +53,13 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
     @Column()
     public city: string;
 
-    @Column()
+    @Column({ nullable: true })
     public address: string;
 
     @Column({ nullable: true })
     public addressURL: string;
 
-    @Column()
+    @Column({ nullable: true })
     public location: string;
 
     @Column({ nullable: true })
@@ -88,6 +88,9 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
 
     @Column({ nullable: true })
     public photoAlbumURL: string;
+
+    @Column({ default: false })
+    public isMultiLocation: boolean;
 
     @OneToMany(type => DirectionsEntity, directions => directions.competition, { nullable: true })
     public directions: DirectionsEntity[];
@@ -138,6 +141,7 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
         model.contactEmail = this.contactEmail;
         model.extraInformation = this.extraInformation;
         model.photoAlbumURL = this.photoAlbumURL;
+        model.isMultiLocation = this.isMultiLocation;
         if (this.events) {
             model.events = this.events.map((e: EventEntity) => e._transform());
         }
@@ -173,6 +177,7 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
         this.contactEmail = origin.contactEmail;
         this.extraInformation = origin.extraInformation;
         this.photoAlbumURL = origin.photoAlbumURL;
+        this.isMultiLocation = origin.isMultiLocation;
         if (origin.events) {
             this.events = origin.events.map((e: EventModel) => {
                 let temp: EventEntity = new EventEntity();

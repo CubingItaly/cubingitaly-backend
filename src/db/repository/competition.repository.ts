@@ -69,35 +69,35 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
 
     public async getOfficialCompetitions(): Promise<CompetitionEntity[]> {
         return this.repository.find({
-            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
+            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address', 'isMultiLocation'],
             order: { 'startDate': 'ASC' }, where: { 'isOfficial': true, 'isHidden': false }
         });
     }
 
     public async getUpcomingCompetitions(date: Date): Promise<CompetitionEntity[]> {
         return this.repository.find({
-            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
+            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address', 'isMultiLocation'],
             order: { 'startDate': 'ASC', endDate: 'ASC' }, where: { 'isOfficial': true, 'isHidden': false, 'startDate': MoreThan(date) }
         });
     }
 
     public async getOnGoingCompetitions(date: Date): Promise<CompetitionEntity[]> {
         return this.repository.find({
-            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
+            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address', 'isMultiLocation'],
             order: { 'startDate': 'ASC', endDate: 'ASC' }, where: { 'isOfficial': true, 'isHidden': false, 'startDate': LessThanOrEqual(date), 'endDate': MoreThanOrEqual(date) }
         });
     }
 
     public async getPastCompetitions(date: Date): Promise<CompetitionEntity[]> {
         return this.repository.find({
-            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
+            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address', 'isMultiLocation'],
             order: { 'startDate': 'DESC', 'endDate': 'DESC' }, where: { 'isOfficial': true, 'isHidden': false, 'endDate': LessThan(date) }
         });
     }
 
     public async getMyCompetitions(user: UserEntity): Promise<CompetitionEntity[]> {
         return this.repository.createQueryBuilder("comp")
-            .select(['comp.id', 'comp.name', 'comp.country', 'comp.city', 'comp.startDate', 'comp.endDate', 'comp.location', 'comp.address'])
+            .select(['comp.id', 'comp.name', 'comp.country', 'comp.city', 'comp.startDate', 'comp.endDate', 'comp.location', 'comp.address', 'isMultiLocation'])
             .innerJoin("comp.organizers", "orga")
             .innerJoin("comp.delegates", "deleg")
             .where("orga.id = :id", { id: user.id })
@@ -109,7 +109,7 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
 
     public async getAdminCompetitions(): Promise<CompetitionEntity[]> {
         return this.repository.find({
-            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address'],
+            select: ['id', 'name', 'country', 'city', 'startDate', 'endDate', 'location', 'address', 'isMultiLocation'],
             order: { 'startDate': 'DESC', 'endDate': 'DESC' }
         });
     }

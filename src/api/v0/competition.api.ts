@@ -30,7 +30,7 @@ import { UserEntity } from "../../db/entity/user.entity";
 
 const router: Router = Router();
 
-const requiredAttributes: string[] = ["id", "name", "startDate", "endDate", "country", "city", "address", "location", "contactName", "contactEmail"];
+const requiredAttributes: string[] = ["id", "name", "startDate", "endDate", "country", "city", "contactName", "contactEmail"];
 
 function requiredParametersArePresent(req, res, next) {
     let competition: CompetitionModel = Deserialize(req.body.competition, CompetitionModel);
@@ -44,6 +44,11 @@ function requiredParametersArePresent(req, res, next) {
     //Check if the end date is valid and greater or equal than the start date
     if (competition.startDate.getTime() > competition.endDate.getTime()) {
         ok = false;
+    }
+    //If the competition is in only one location check if address and location are present
+    if (!competition.isMultiLocation) {
+        if (!competition.address || !competition.location)
+            ok = false;
     }
     if (ok) {
         next();

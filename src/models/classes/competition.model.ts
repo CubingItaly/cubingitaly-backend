@@ -70,6 +70,9 @@ export class CompetitionModel {
     @autoserialize
     public photoAlbumURL?: string;
 
+    @autoserialize
+    public isMultiLocation: boolean;
+
     @autoserializeAs(UserModel)
     public organizers?: UserModel[];
 
