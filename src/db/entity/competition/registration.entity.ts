@@ -79,6 +79,9 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
     @Column({ default: false })
     public isComplete: boolean;
 
+    @Column({ default: true })
+    public isThereWaitingList: boolean;
+
     @OneToMany(type => RefundPolicyEntity, policy => policy.registration, { cascade: true, eager: true })
     public refundPolicy: RefundPolicyEntity[];
 
@@ -114,6 +117,7 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
         model.paypalLink = this.paypalLink;
         model.refundAvailable = this.refundAvailable;
         model.registrationExtraInfo = this.registrationExtraInfo;
+        model.isThereWaitingList = this.isThereWaitingList;
         model.isComplete = this.isComplete;
         if (this.refundPolicy) {
             model.refundPolicy = this.refundPolicy.map((p: RefundPolicyEntity) => p._transform());
@@ -148,6 +152,7 @@ export class RegistrationEntity extends BaseEntity implements ITransformable<Reg
         this.paypalLink = origin.paypalLink;
         this.refundAvailable = origin.refundAvailable;
         this.registrationExtraInfo = origin.registrationExtraInfo;
+        this.isThereWaitingList = origin.isThereWaitingList;
         if (origin.paymentMeans) {
             this.paymentMeans = origin.paymentMeans.map((p: PaymentMeanModel) => {
                 let temp: PaymentMeanEntity = new PaymentMeanEntity();

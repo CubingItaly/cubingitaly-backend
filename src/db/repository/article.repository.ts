@@ -255,7 +255,7 @@ export class ArticleRepository extends BaseCommonRepository<ArticleEntity> {
         article.categories = [await getCustomRepository(ArticleCategoryRepository).getCategory("competizioni")];
         article.title = competition.name;
         article.summary = competition.getCompetitionSummary();
-        article.content = `<p>Visita il <a href="/competizioni/${competition.id}"> sito della gara </a> per scoprire come iscriverti e per trovare tutte le informazioni riguardo:</p> <ul><li>Categorie che si svolgeranno </li><li>Programma della gara</li > <li>Procedura di iscrizione </li><li>Apertura e chiusura delle registrazioni</li > <li>Costo di iscrizione </li><li>Come fare per assistere</li > <li>Indicazioni per raggiungere il luogo </li><li>Convenzioni</li > <li>E altro ancora! </li></ul > <a href="/competizioni/${competition.id}"><figure class="image" ><img src="/assets/images/visit-website.jpg" /></figure></a>`
+        article.content = `<p>Visita il <a href="/competizioni/${competition.id}"> sito della gara </a> per scoprire come iscriverti e per trovare tutte le informazioni riguardo:</p> <ul><li>Categorie che si svolgeranno </li><li>Programma della gara</li > <li>Procedura di iscrizione </li><li>Apertura e chiusura delle registrazioni</li > <li>Costo di iscrizione </li><li>Come fare per assistere</li > <li>Indicazioni per raggiungere il luogo </li><li>Convenzioni</li > <li>E altro ancora! </li></ul > <a href="/competizioni/${competition.id}"><figure class="image" ><img src="/assets/images/visit-website.png" /></figure></a>`
         article.id = await this.generateId(competition.name);
         article.isPublic = true;
         article.publishDate = new Date();

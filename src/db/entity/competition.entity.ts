@@ -86,6 +86,9 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
     @Column({ type: "text", nullable: true })
     public extraInformation: string;
 
+    @Column({ nullable: true })
+    public photoAlbumURL: string;
+
     @OneToMany(type => DirectionsEntity, directions => directions.competition, { nullable: true })
     public directions: DirectionsEntity[];
 
@@ -134,6 +137,7 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
         model.contactName = this.contactName;
         model.contactEmail = this.contactEmail;
         model.extraInformation = this.extraInformation;
+        model.photoAlbumURL = this.photoAlbumURL;
         if (this.events) {
             model.events = this.events.map((e: EventEntity) => e._transform());
         }
@@ -168,6 +172,7 @@ export class CompetitionEntity extends BaseEntity implements ITransformable<Comp
         this.contactName = origin.contactName;
         this.contactEmail = origin.contactEmail;
         this.extraInformation = origin.extraInformation;
+        this.photoAlbumURL = origin.photoAlbumURL;
         if (origin.events) {
             this.events = origin.events.map((e: EventModel) => {
                 let temp: EventEntity = new EventEntity();

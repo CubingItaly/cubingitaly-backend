@@ -67,6 +67,9 @@ export class CompetitionModel {
     @autoserialize
     public liveResultsURL?: string;
 
+    @autoserialize
+    public photoAlbumURL?: string;
+
     @autoserializeAs(UserModel)
     public organizers?: UserModel[];
 

@@ -1,9 +1,6 @@
 const months: string[] = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
 
 export function getCompetitionDates(startDate: Date, endDate: Date): string {
-    console.log(startDate.getTimezoneOffset());
-    console.log(startDate);
-    console.log(endDate);
     let startDay: number = startDate.getDate();
     let startMonth: number = startDate.getMonth();
     let startYear: number = startDate.getFullYear();

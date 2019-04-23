@@ -79,4 +79,7 @@ export class RegistrationModel {
     @autoserialize
     public isComplete: boolean;
 
+    @autoserialize
+    public isThereWaitingList: boolean;
+
 }

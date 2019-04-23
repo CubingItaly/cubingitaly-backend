@@ -16,6 +16,10 @@ import { PaymentMeanRepository } from './repository/competition/paymentmean.repo
 import { DirectionsRepository } from "./repository/competition/directions.repository";
 import { CompetitionRepository } from "./repository/competition.repository";
 import { RegistrationRepository } from './repository/competition/registration.repository';
+import { RefundPolicyRepository } from './repository/competition/refundpolicy.repository';
+import { ScheduleRepository } from "./repository/competition/schedule.repository";
+import { ScheduleRowRepository } from "./repository/competition/schedule.row.repository";
+import { ExtraTabRepository } from "./repository/competition/extratab.repository";
 
 /**
  * Holds all the custom repository that needs to run a custom function check when the database connection is available (init).
@@ -39,6 +43,10 @@ export function _BOOTSTRAPS(): BaseCommonRepository<BaseEntity>[] {
     getCustomRepository(PaymentMeanRepository),
     getCustomRepository(CompetitionRepository),
     getCustomRepository(DirectionsRepository),
-    getCustomRepository(RegistrationRepository)
+    getCustomRepository(RegistrationRepository),
+    getCustomRepository(RefundPolicyRepository),
+    getCustomRepository(ScheduleRepository),
+    getCustomRepository(ScheduleRowRepository),
+    getCustomRepository(ExtraTabRepository)
   ];
 }
