@@ -261,7 +261,7 @@ Registration APIs
 async function allParametersAreOk(req, res, next) {
     let r: RegistrationModel = Deserialize(req.body.registration, RegistrationModel);
     let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
-    let ok = true && r.competitorsLimit >= 20;
+    let ok = true && r.competitorsLimit >= 2;
     ok = ok && (r.registrationOpen.getTime() <= r.registrationClose.getTime());
     ok = ok && r.registrationClose.getTime() <= competition._transform().startDate.getTime();
     ok = ok && (!r.isRegistrationPaid || (r.isRegistrationPaid && r.registrationFee > 0));
@@ -336,12 +336,15 @@ function sanitizeDirections(req, res, next) {
     next();
 }
 
-async function eventsExist(req, res, next) {
+async function travelMeanExist(req, res, next) {
     let directions: DirectionsModel = Deserialize(req.body.directions, DirectionsModel);
-    let travelMean: TravelMeanEntity = await getCustomRepository(TravelMeanRepository).getTravelMean(directions.id);
+    let travelMean: TravelMeanEntity = await getCustomRepository(TravelMeanRepository).getTravelMean(directions.mean.id);
+    console.log(directions);
+    console.log(travelMean);
     if (travelMean) {
         next();
     } else {
+        console.log("travelmean doesn't exist");
         sendError(res, 400, "Bad request. Some attributes are missing.");
     }
 }
@@ -372,7 +375,7 @@ router.get("/:id/directions", canViewCompetition, async (req, res) => {
 });
 
 router.post("/:id/directions", verifyLogin, canEditCompetition, directionsHasNoId,
-    sanitizeDirections, eventsExist, async (req, res) => {
+    sanitizeDirections, travelMeanExist, async (req, res) => {
         let directions: DirectionsModel = Deserialize(req.body.directions, DirectionsModel);
         let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
         let entity: DirectionsEntity = new DirectionsEntity();
@@ -387,16 +390,18 @@ router.post("/:id/directions", verifyLogin, canEditCompetition, directionsHasNoI
     });
 
 router.put("/:id/directions/:did", verifyLogin, canEditCompetition, didMatch,
-    dirBelongsToComp, sanitizeDirections, eventsExist, async (req, res) => {
+    dirBelongsToComp, sanitizeDirections, travelMeanExist, async (req, res) => {
         let directions: DirectionsModel = Deserialize(req.body.directions, DirectionsModel);
         let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
         let entity: DirectionsEntity = new DirectionsEntity();
         entity._assimilate(directions);
+        console.log(entity);
         try {
             entity = await getDirectionsRepository().createDirection(entity, competition);
             getCompetitionRepository().updateDate(req.params.id);
             res.status(200).json(entity._transform());
         } catch (e) {
+            console.log(e);
             sendError(res, 400, "Bad request. Some attributes are missing.");
         }
     });
