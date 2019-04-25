@@ -214,11 +214,15 @@ router.post("/", verifyLogin, canCreateCompetition,
         let competition: CompetitionModel = Deserialize(req.body.competition, CompetitionModel);
         let entity: CompetitionEntity = new CompetitionEntity();
         entity._assimilate(competition);
+
         try {
             entity = await getCompetitionRepository().createCompetition(entity);
-            getCompetitionRepository().updateDate(entity.id);
+            await getCompetitionRepository().updateDate(entity.id);
             res.status(200).json(entity._transform());
         } catch (e) {
+            if (process.env.NODE_ENV !== "production") {
+                console.log(e)
+            }
             sendError(res, 400, "Bad request. Some attributes are missing.");
         }
     });
@@ -233,6 +237,9 @@ router.put("/:id", verifyLogin, canEditCompetition,
             getCompetitionRepository().updateDate(entity.id);
             res.status(200).json(entity._transform());
         } catch (e) {
+            if (process.env.NODE_ENV !== "production") {
+                console.log(e)
+            }
             sendError(res, 400, "Bad request. Some attributes are missing.");
         }
     });
@@ -247,7 +254,9 @@ router.put("/:id/announce", verifyLogin, canAnnounceCompetition,
             getCompetitionRepository().updateDate(entity.id);
             res.status(200).json(entity._transform());
         } catch (e) {
-            console.log(e);
+            if (process.env.NODE_ENV !== "production") {
+                console.log(e)
+            }
             sendError(res, 400, "Bad request. Some attributes are missing.");
         }
     });
@@ -320,6 +329,9 @@ router.put("/:id/registrations", verifyLogin, canEditCompetition, regBelongsToCo
         getCompetitionRepository().updateDate(req.params.id);
         res.status(200).json(entity._transform());
     } catch (e) {
+        if (process.env.NODE_ENV !== "production") {
+            console.log(e)
+        }
         sendError(res, 400, "Bad request. Some attributes are missing.");
     }
 });
@@ -344,12 +356,9 @@ function sanitizeDirections(req, res, next) {
 async function travelMeanExist(req, res, next) {
     let directions: DirectionsModel = Deserialize(req.body.directions, DirectionsModel);
     let travelMean: TravelMeanEntity = await getCustomRepository(TravelMeanRepository).getTravelMean(directions.mean.id);
-    console.log(directions);
-    console.log(travelMean);
     if (travelMean) {
         next();
     } else {
-        console.log("travelmean doesn't exist");
         sendError(res, 400, "Bad request. Some attributes are missing.");
     }
 }
@@ -390,6 +399,9 @@ router.post("/:id/directions", verifyLogin, canEditCompetition, directionsHasNoI
             getCompetitionRepository().updateDate(req.params.id);
             res.status(200).json(entity._transform());
         } catch (e) {
+            if (process.env.NODE_ENV !== "production") {
+                console.log(e)
+            }
             sendError(res, 400, "Bad request. Some attributes are missing.");
         }
     });
@@ -400,13 +412,14 @@ router.put("/:id/directions/:did", verifyLogin, canEditCompetition, didMatch,
         let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
         let entity: DirectionsEntity = new DirectionsEntity();
         entity._assimilate(directions);
-        console.log(entity);
         try {
             entity = await getDirectionsRepository().createDirection(entity, competition);
             getCompetitionRepository().updateDate(req.params.id);
             res.status(200).json(entity._transform());
         } catch (e) {
-            console.log(e);
+            if (process.env.NODE_ENV !== "production") {
+                console.log(e)
+            }
             sendError(res, 400, "Bad request. Some attributes are missing.");
         }
     });

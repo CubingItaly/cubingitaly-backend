@@ -243,7 +243,7 @@ export class UserModel {
     }
 
     public canCreateCompetitions(): boolean {
-        return this.canAdminCompetitions() || this.isDelegate();
+        return this.canAdminCompetitions();
     }
 
     public canEditCompetition(competition: CompetitionModel) {

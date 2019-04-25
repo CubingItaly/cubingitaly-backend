@@ -97,7 +97,7 @@ export class CompetitionRepository extends BaseCommonRepository<CompetitionEntit
 
     public async getMyCompetitions(user: UserEntity): Promise<CompetitionEntity[]> {
         return this.repository.createQueryBuilder("comp")
-            .select(['comp.id', 'comp.name', 'comp.country', 'comp.city', 'comp.startDate', 'comp.endDate', 'comp.location', 'comp.address', 'isMultiLocation'])
+            .select(['comp.id', 'comp.name', 'comp.country', 'comp.city', 'comp.startDate', 'comp.endDate', 'comp.location', 'comp.address', 'comp.isMultiLocation'])
             .innerJoin("comp.organizers", "orga")
             .innerJoin("comp.delegates", "deleg")
             .where("orga.id = :id", { id: user.id })

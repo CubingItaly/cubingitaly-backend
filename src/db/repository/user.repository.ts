@@ -36,7 +36,7 @@ export class UserRepository extends BaseCommonRepository<UserEntity>{
 
     public async checkIfIsDelegate(id: number): Promise<boolean> {
         let user: UserEntity = await this.repository.findOne(id);
-        if(user && user.delegateStatus !== null){
+        if (user && user.delegateStatus !== null) {
             return true;
         }
         return false;
@@ -108,9 +108,12 @@ export class UserRepository extends BaseCommonRepository<UserEntity>{
     public async findDelegatesByName(name: string): Promise<UserEntity[]> {
         return this.repository.find({
             select: ["id", "wcaId", "name", "delegateStatus"],
-            where: {
-                name: Like(name + "%"), delegateStatus: Not(IsNull())
+            where: [{
+                name: Like(name + "%"), delegateStatus: "delegate"
             },
+            {
+                name: Like(name + "%"), delegateStatus: "candidate_delegate"
+            }],
             take: 10,
             order: { name: "ASC" }
         });
