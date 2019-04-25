@@ -3,7 +3,7 @@ import { sendError } from "../../shared/error.utils";
 import { Router } from "express";
 //# we need this because otherwise passport doesn't work
 import * as passport from "passport";
-import { canViewCompetition, getCompetitionRepository, canCreateCompetition, canEditCompetition, canAnnounceCompetition, getRegistrationRepository, getDirectionsRepository, getScheduleRepository, canAdminCompetitions } from '../../shared/competition.utils';
+import { canViewCompetition, getCompetitionRepository, canCreateCompetition, canEditCompetition, canAnnounceCompetition, getRegistrationRepository, getDirectionsRepository, getScheduleRepository, canAdminCompetitions, getExtraTabRepository } from '../../shared/competition.utils';
 import { CompetitionEntity } from "../../db/entity/competition.entity";
 import { verifyLogin, getUser } from "../../shared/login.utils";
 import { CompetitionModel } from "../../models/classes/competition.model";
@@ -27,6 +27,9 @@ import { DirectionsModel } from "../../models/classes/competition/directions.mod
 import { ScheduleEntity } from "../../db/entity/competition/schedule.entity";
 import { ScheduleModel } from "../../models/classes/competition/schedule.model";
 import { UserEntity } from "../../db/entity/user.entity";
+import { ExtraTabEntity } from "../../db/entity/competition/extratab.entity";
+import { ExtraTabModel } from "../../models/classes/competition/extratab.model";
+import { isNumber } from "util";
 
 const router: Router = Router();
 
@@ -440,5 +443,147 @@ router.get("/:id/schedule", canViewCompetition, async (req, res) => {
     let model: ScheduleModel[] = schedule.map((s: ScheduleEntity) => s._transform());
     res.status(200).json(model);
 });
+
+/*
+Extra tab API
+*/
+
+
+
+
+router.get("/:id/tabs", canViewCompetition, async (req, res) => {
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    let tabs: ExtraTabEntity[] = await getExtraTabRepository().getTabsByCompetition(competition);
+    let model: ExtraTabModel[] = tabs.map((t: ExtraTabEntity) => t._transform());
+    res.status(200).json(model);
+});
+
+function verifyTab(req, res, next) {
+    let tab: ExtraTabModel = Deserialize(req.body.tab, ExtraTabModel);
+    if (tab.id || tab.indexInComp) {
+        sendError(res, 400, "Error! The new tab shouldn't have an ID or an index");
+    } else {
+        if (tab.name && tab.content && tab.content.length > 0 && tab.name.length > 0) {
+            next();
+        } else {
+
+            sendError(res, 400, "Error! The request is malformed.");
+        }
+    }
+
+}
+
+async function verifyUpdatedTab(req, res, next) {
+    let tab: ExtraTabModel = Deserialize(req.body.tab);
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    let compTabs: ExtraTabEntity[] = await getExtraTabRepository().getTabsByCompetition(competition);
+    let oldTab: ExtraTabEntity = compTabs.find((o: ExtraTabEntity) => o.id === tab.id);
+    if (oldTab) {
+        if (oldTab.name && oldTab.content && oldTab.content.length > 0 && oldTab.name.length > 0) {
+            if (oldTab.indexInComp !== tab.indexInComp) {
+                req.body.tab.indexInComp = oldTab.indexInComp;
+            }
+            next();
+        } else {
+
+            sendError(res, 400, "Error! The request is malformed.");
+        }
+    } else {
+        sendError(res, 400, "Error! The request is malformed.");
+    }
+}
+
+async function tabBelongsToComp(req, res, next) {
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    let compTabs: ExtraTabEntity[] = await getExtraTabRepository().getTabsByCompetition(competition);
+    let oldTab: ExtraTabEntity = compTabs.find((o: ExtraTabEntity) => o.id === req.params.tabid);
+    if (oldTab) {
+        next();
+    } else {
+        sendError(res, 400, "Error! The request is malformed.");
+    }
+}
+
+function deltaIsIn(req, res, next) {
+    let delta: number = req.body.delta || null;
+    if (isNumber(delta)) {
+        next();
+    } else {
+        sendError(res, 400, "Error! The request is malformed.");
+    }
+}
+
+function sanitizeTab(req, res, next) {
+    req.body.tab.content = sanitize(req.body.tab.content);
+    next();
+}
+
+
+router.post("/:id/tabs", canViewCompetition, canEditCompetition, verifyTab, sanitizeTab, async (req, res) => {
+    let tab: ExtraTabModel = Deserialize(req.body.tab, ExtraTabModel);
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    let newTab: ExtraTabEntity = new ExtraTabEntity();
+    newTab._assimilate(tab);
+    try {
+        newTab = await getExtraTabRepository().addTabToCompetition(competition, newTab);
+        tab = newTab._transform();
+        res.status(200).json(tab);
+    } catch (e) {
+        if (process.env.NODE_ENV !== "production") {
+            console.log(e)
+        }
+        sendError(res, 400, "Bad request. Some attributes are missing.");
+    }
+});
+
+router.put("/:id/tabs/:tabid", verifyLogin, canEditCompetition, verifyUpdatedTab, sanitizeTab, async (req, res) => {
+    let tab: ExtraTabModel = Deserialize(req.body.tab, ExtraTabModel);
+    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    let updatedTab: ExtraTabEntity = new ExtraTabEntity();
+    updatedTab._assimilate(tab);
+    try {
+        updatedTab = await getExtraTabRepository().updateTab(updatedTab);
+        tab = updatedTab._transform();
+        res.status(200).json(tab);
+    } catch (e) {
+        if (process.env.NODE_ENV !== "production") {
+            console.log(e)
+        }
+        sendError(res, 400, "Bad request. Some attributes are missing.");
+    }
+});
+
+
+
+router.put("/:id/tabs/:tabid/move", verifyLogin, canEditCompetition, tabBelongsToComp, deltaIsIn, async (req, res) => {
+    let entity: ExtraTabEntity = await getExtraTabRepository().getTabById(req.params.tabid);
+    let comp: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    let delta: number = Number(req.body.delta);
+    try {
+        let tabs: ExtraTabEntity[] = await getExtraTabRepository().moveTab(entity, comp, delta);
+        let model: ExtraTabModel[] = tabs.map((t: ExtraTabEntity) => t._transform());
+        res.status(200).json(model);
+    } catch (e) {
+        if (process.env.NODE_ENV !== "production") {
+            console.log(e)
+        }
+        sendError(res, 400, "Bad request. Some attributes are missing.");
+    }
+});
+
+router.delete("/:id/tabs/:tabid", verifyLogin, canEditCompetition, tabBelongsToComp, async (req, res) => {
+    let comp: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
+    try {
+        await getExtraTabRepository().deleteTab(req.params.tabid, comp);
+        res.status(200).json({});
+    } catch (e) {
+        if (process.env.NODE_ENV !== "production") {
+            console.log(e)
+        }
+        sendError(res, 400, "Bad request. Some attributes are missing.");
+    }
+
+});
+
 
 export { router }

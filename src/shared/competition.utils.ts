@@ -8,6 +8,7 @@ import { getCustomRepository } from "typeorm";
 import { UserModel } from "../models/classes/user.model";
 import { CompetitionEntity } from "../db/entity/competition.entity";
 import { CompetitionModel } from "../models/classes/competition.model";
+import { ExtraTabRepository } from "../db/repository/competition/extratab.repository";
 
 
 export function getCompetitionRepository(): CompetitionRepository {
@@ -24,6 +25,10 @@ export function getDirectionsRepository(): DirectionsRepository {
 
 export function getScheduleRepository(): ScheduleRepository {
     return getCustomRepository(ScheduleRepository);
+}
+
+export function getExtraTabRepository(): ExtraTabRepository {
+    return getCustomRepository(ExtraTabRepository);
 }
 
 export async function canViewCompetition(req, res, next) {

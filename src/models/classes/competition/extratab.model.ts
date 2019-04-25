@@ -6,12 +6,12 @@ export class ExtraTabModel {
     public id: number;
 
     @autoserialize
-    public name: String;
+    public name: string;
 
     @autoserialize
-    public content: String;
+    public content: string;
 
     @autoserialize
-    public index: number;
+    public indexInComp: number;
 
 }

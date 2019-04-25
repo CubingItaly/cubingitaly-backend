@@ -16,7 +16,7 @@ export class ExtraTabEntity extends BaseEntity implements ITransformable<ExtraTa
     public content: string;
 
     @Column()
-    public index: number;
+    public indexInComp: number;
 
     @ManyToOne(type => CompetitionEntity, competition => competition.extraTabs, { onDelete: "CASCADE" })
     public competition: CompetitionEntity;
@@ -26,15 +26,15 @@ export class ExtraTabEntity extends BaseEntity implements ITransformable<ExtraTa
         tab.id = this.id;
         tab.name = this.name;
         tab.content = this.content;
-        tab.index = this.index;
+        tab.indexInComp = this.indexInComp;
         return tab;
     }
 
-    _assimilate(origin: ExtraTabEntity) {
+    _assimilate(origin: ExtraTabModel) {
         this.id = origin.id;
         this.name = origin.name;
         this.content = origin.content;
-        this.index = origin.index;
+        this.indexInComp = origin.indexInComp;
     }
 
 }

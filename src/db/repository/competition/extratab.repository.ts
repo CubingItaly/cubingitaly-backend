@@ -13,9 +13,12 @@ export class ExtraTabRepository extends BaseCommonRepository<ExtraTabEntity> {
     public async InitDefaults(): Promise<void> {
     }
 
+    public async getTabById(id: number): Promise<ExtraTabEntity> {
+        return this.repository.findOne(id);
+    }
 
     public async getTabsByCompetition(competition: CompetitionEntity): Promise<ExtraTabEntity[]> {
-        return this.repository.find({ where: { competition: competition }, order: { "index": "ASC" } });
+        return this.repository.find({ where: { competition: competition }, order: { "indexInComp": "ASC" } });
     }
 
     private async countTabByCompetition(competition: CompetitionEntity): Promise<number> {
@@ -24,7 +27,7 @@ export class ExtraTabRepository extends BaseCommonRepository<ExtraTabEntity> {
 
     public async addTabToCompetition(competition: CompetitionEntity, tab: ExtraTabEntity): Promise<ExtraTabEntity> {
         tab.competition = competition;
-        tab.index = await this.countTabByCompetition(competition);
+        tab.indexInComp = await this.countTabByCompetition(competition);
         return this.repository.save(tab);
     }
 
@@ -38,15 +41,15 @@ export class ExtraTabRepository extends BaseCommonRepository<ExtraTabEntity> {
     public async moveTab(tab: ExtraTabEntity, competition: CompetitionEntity, delta: number): Promise<ExtraTabEntity[]> {
         let tabs: ExtraTabEntity[] = await this.getTabsByCompetition(competition);
         tabs = this.sortTabs(tabs);
-        tabs = this.moveElement(tab.index, delta, tabs);
+        tabs = this.moveElement(tab.indexInComp, delta, tabs);
         return this.repository.save(tabs);
     }
 
     private sortTabs(tabs: ExtraTabEntity[]) {
         if (tabs && tabs.length > 0) {
             return tabs.sort((a: ExtraTabEntity, b: ExtraTabEntity) => {
-                if (a.index > b.index) return 1;
-                if (a.index < b.index) return -1;
+                if (a.indexInComp > b.indexInComp) return 1;
+                if (a.indexInComp < b.indexInComp) return -1;
                 return 0;
             });
         }
@@ -63,15 +66,15 @@ export class ExtraTabRepository extends BaseCommonRepository<ExtraTabEntity> {
             delta = newIndex - index;
         }
 
-        tabs[index].index = newIndex;
+        tabs[index].indexInComp = newIndex;
 
         if (delta < 0) {
             for (let i = newIndex; i < index; i++) {
-                tabs[i].index++;
+                tabs[i].indexInComp++;
             }
         } else if (delta > 0) {
             for (let i = index + 1; i <= newIndex; i++) {
-                tabs[i].index--;
+                tabs[i].indexInComp--;
             }
         }
         return this.sortTabs(tabs);
@@ -89,7 +92,7 @@ export class ExtraTabRepository extends BaseCommonRepository<ExtraTabEntity> {
 
     private assignIndexes(tabs: ExtraTabEntity[]) {
         for (let i = 0; i < tabs.length; i++) {
-            tabs[i].index = i;
+            tabs[i].indexInComp = i;
         }
         return tabs;
     }

@@ -12,7 +12,7 @@ import { CompetitionEntity } from "../../db/entity/competition.entity";
 //# we need this because otherwise passport doesn't work
 const router: Router = Router();
 
-const header: String = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">";
+const header: string = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">";
 const websiteBase: string = "https://www.cubingitaly.org/";
 class urlClass {
     loc: string;
