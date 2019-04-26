@@ -38,11 +38,21 @@ export class ExtraTabRepository extends BaseCommonRepository<ExtraTabEntity> {
         return this.repository.save(old);
     }
 
-    public async moveTab(tab: ExtraTabEntity, competition: CompetitionEntity, delta: number): Promise<ExtraTabEntity[]> {
+    public async moveTab(tab: number, competition: CompetitionEntity, delta: number): Promise<ExtraTabEntity[]> {
         let tabs: ExtraTabEntity[] = await this.getTabsByCompetition(competition);
-        tabs = this.sortTabs(tabs);
-        tabs = this.moveElement(tab.indexInComp, delta, tabs);
+        let index: number = tabs.findIndex((t: ExtraTabEntity) => t.id === Number(tab));
+        let newIndex = index + delta;
+        this.moveElement(index, newIndex, tabs);
+        this.assignIndexes(tabs);
         return this.repository.save(tabs);
+    }
+
+    public moveElement(index: number, newIndex: number, tabs: ExtraTabEntity[]) {
+        if (newIndex > tabs.length) {
+            newIndex = tabs.length - 1;
+        }
+        tabs.splice(newIndex, 0, tabs.splice(index, 1)[0]);
+        return tabs;
     }
 
     private sortTabs(tabs: ExtraTabEntity[]) {
@@ -56,37 +66,11 @@ export class ExtraTabRepository extends BaseCommonRepository<ExtraTabEntity> {
         return [];
     }
 
-    private moveElement(index: number, delta: number, tabs: ExtraTabEntity[]) {
-        let newIndex: number = index + delta;
-        if (delta < 0) {
-            newIndex = 0;
-            delta = newIndex - index;
-        } else if (newIndex >= tabs.length) {
-            newIndex = tabs.length - 1;
-            delta = newIndex - index;
-        }
-
-        tabs[index].indexInComp = newIndex;
-
-        if (delta < 0) {
-            for (let i = newIndex; i < index; i++) {
-                tabs[i].indexInComp++;
-            }
-        } else if (delta > 0) {
-            for (let i = index + 1; i <= newIndex; i++) {
-                tabs[i].indexInComp--;
-            }
-        }
-        return this.sortTabs(tabs);
-    }
-
     public async deleteTab(tab: number, competition: CompetitionEntity): Promise<void> {
+        await this.repository.delete(tab);
         let tabs: ExtraTabEntity[] = await this.getTabsByCompetition(competition);
-        this.repository.delete(tab);
-        tabs = tabs.filter((t: ExtraTabEntity) => t.id !== tab);
-        tabs = this.sortTabs(tabs);
-        tabs = this.assignIndexes(tabs);
-        this.repository.save(tabs);
+        this.assignIndexes(tabs);
+        await this.repository.save(tabs);
         return;
     }
 

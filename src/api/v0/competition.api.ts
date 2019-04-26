@@ -474,10 +474,10 @@ function verifyTab(req, res, next) {
 }
 
 async function verifyUpdatedTab(req, res, next) {
-    let tab: ExtraTabModel = Deserialize(req.body.tab);
+    let tab: ExtraTabModel = Deserialize(req.body.tab, ExtraTabModel);
     let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
     let compTabs: ExtraTabEntity[] = await getExtraTabRepository().getTabsByCompetition(competition);
-    let oldTab: ExtraTabEntity = compTabs.find((o: ExtraTabEntity) => o.id === tab.id);
+    let oldTab: ExtraTabEntity = compTabs.find((o: ExtraTabEntity) => o.id === Number(tab.id));
     if (oldTab) {
         if (oldTab.name && oldTab.content && oldTab.content.length > 0 && oldTab.name.length > 0) {
             if (oldTab.indexInComp !== tab.indexInComp) {
@@ -496,11 +496,12 @@ async function verifyUpdatedTab(req, res, next) {
 async function tabBelongsToComp(req, res, next) {
     let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
     let compTabs: ExtraTabEntity[] = await getExtraTabRepository().getTabsByCompetition(competition);
-    let oldTab: ExtraTabEntity = compTabs.find((o: ExtraTabEntity) => o.id === req.params.tabid);
+    let oldTab: ExtraTabEntity = compTabs.find((o: ExtraTabEntity) => o.id === Number(req.params.tabid));
     if (oldTab) {
         next();
     } else {
-        sendError(res, 400, "Error! The request is malformed.");
+
+        sendError(res, 400, "asError! The request is malformed.");
     }
 }
 
@@ -538,7 +539,6 @@ router.post("/:id/tabs", canViewCompetition, canEditCompetition, verifyTab, sani
 
 router.put("/:id/tabs/:tabid", verifyLogin, canEditCompetition, verifyUpdatedTab, sanitizeTab, async (req, res) => {
     let tab: ExtraTabModel = Deserialize(req.body.tab, ExtraTabModel);
-    let competition: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
     let updatedTab: ExtraTabEntity = new ExtraTabEntity();
     updatedTab._assimilate(tab);
     try {
@@ -556,11 +556,10 @@ router.put("/:id/tabs/:tabid", verifyLogin, canEditCompetition, verifyUpdatedTab
 
 
 router.put("/:id/tabs/:tabid/move", verifyLogin, canEditCompetition, tabBelongsToComp, deltaIsIn, async (req, res) => {
-    let entity: ExtraTabEntity = await getExtraTabRepository().getTabById(req.params.tabid);
     let comp: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
     let delta: number = Number(req.body.delta);
     try {
-        let tabs: ExtraTabEntity[] = await getExtraTabRepository().moveTab(entity, comp, delta);
+        let tabs: ExtraTabEntity[] = await getExtraTabRepository().moveTab(req.params.tabid, comp, delta);
         let model: ExtraTabModel[] = tabs.map((t: ExtraTabEntity) => t._transform());
         res.status(200).json(model);
     } catch (e) {
