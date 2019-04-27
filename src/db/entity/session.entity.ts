@@ -11,4 +11,6 @@ export class Session extends BaseEntity implements SessionEntity {
 
     @Column()
     data: string;
+
+    
 }

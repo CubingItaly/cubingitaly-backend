@@ -1,11 +1,10 @@
-import { EntityRepository, Like, getCustomRepository } from "typeorm";
+import { EntityRepository, Like, getCustomRepository, Not, Any, IsNull } from "typeorm";
 import { UserEntity } from "../entity/user.entity";
 import { BaseCommonRepository } from "../BaseCommonRepository";
 import { TeamEntity } from "../entity/team.entity";
 import { TeamRepository } from "./team.repository";
 import { RoleRepository } from "./role.repository";
 import { keys } from "../../secrets/keys";
-
 
 
 @EntityRepository(UserEntity)
@@ -31,8 +30,16 @@ export class UserRepository extends BaseCommonRepository<UserEntity>{
      * @param id 
      */
     public async checkIfUserExists(id: number): Promise<boolean> {
-        let count: number= await this.repository.count({where: {id:id}});
+        let count: number = await this.repository.count({ where: { id: id } });
         return count > 0;
+    }
+
+    public async checkIfIsDelegate(id: number): Promise<boolean> {
+        let user: UserEntity = await this.repository.findOne(id);
+        if (user && user.delegateStatus !== null) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -89,8 +96,27 @@ export class UserRepository extends BaseCommonRepository<UserEntity>{
             where: { name: Like(name + "%") },
             take: 10,
             order: { name: "ASC" }
-        })
+        });
+    }
 
+
+    /**
+     * Find the first 10 users whose name starts with the parameter
+     * 
+     * @param name 
+     */
+    public async findDelegatesByName(name: string): Promise<UserEntity[]> {
+        return this.repository.find({
+            select: ["id", "wcaId", "name", "delegateStatus"],
+            where: [{
+                name: Like(name + "%"), delegateStatus: "delegate"
+            },
+            {
+                name: Like(name + "%"), delegateStatus: "candidate_delegate"
+            }],
+            take: 10,
+            order: { name: "ASC" }
+        });
     }
 
     /**

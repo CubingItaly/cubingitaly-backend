@@ -30,19 +30,6 @@ router.get("/me", async (req, res) => {
     await sendUserFromRepository(req, res, getUser(req).id, false);
 });
 
-/**
- * Get a specific user with all his personal data including the roles
- */
-router.get("/:id", async (req, res) => {
-    await sendUserFromRepository(req, res, req.params.id, false);
-});
-
-/**
- * Get a specific user with all his personal data but the roles
- */
-router.get("/:id/short", async (req, res) => {
-    await sendUserFromRepository(req, res, req.params.id, true);
-});
 
 /**
  * Retrieve a specific user from the database and send it to the client
@@ -77,5 +64,28 @@ router.get("/", async (req, res) => {
     return res.status(200).json(modelUsers);
 });
 
+/**
+ * Search between the users and return the list of those matching the name
+ */
+router.get("/delegates", async (req, res) => {
+    let userRepo: UserRepository = getUserRepository();
+    let dbUsers: UserEntity[] = await userRepo.findDelegatesByName(req.query.name || "");
+    let modelUsers: UserModel[] = dbUsers.map((user: UserEntity) => user._transform());
+    return res.status(200).json(modelUsers);
+});
+
+/**
+ * Get a specific user with all his personal data including the roles
+ */
+router.get("/:id", async (req, res) => {
+    await sendUserFromRepository(req, res, req.params.id, false);
+});
+
+/**
+ * Get a specific user with all his personal data but the roles
+ */
+router.get("/:id/short", async (req, res) => {
+    await sendUserFromRepository(req, res, req.params.id, true);
+});
 
 export { router }

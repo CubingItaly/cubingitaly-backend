@@ -25,6 +25,9 @@ router.post("/", [body('email').isEmail(), body('subject').isLength({ min: 5 }),
                 })
 
         } catch (e) {
+            if (process.env.NODE_ENV !== "production") {
+                console.log(e)
+            }
             sendError(res, 500, "There was an error while trying to process the request");
         }
     } else {

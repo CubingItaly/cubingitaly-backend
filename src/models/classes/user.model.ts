@@ -1,6 +1,7 @@
 import { autoserialize, autoserializeAs } from 'cerialize';
 import { TeamModel } from './team.model';
 import { RoleModel } from './role.model';
+import { CompetitionModel } from './competition.model';
 
 
 /**
@@ -231,5 +232,33 @@ export class UserModel {
 
     public canAdminFAQs(): boolean {
         return this.isAdmin() || this.isBoard() || this.isCITQ() || this.isCITC() || this.isLeader();
+    }
+
+    /* Enf of FAQ permissions */
+
+    /* Start of competition permissions */
+
+    public canAdminCompetitions(): boolean {
+        return this.isAdmin() || this.isBoard();
+    }
+
+    public canCreateCompetitions(): boolean {
+        return this.canAdminCompetitions();
+    }
+
+    public canEditCompetition(competition: CompetitionModel) {
+        return this.canAdminCompetitions() || competition.hasOrganizer(this.id) || competition.hasDelegate(this.id);
+    }
+
+    public canViewCompetition(competition: CompetitionModel) {
+        return competition.isOfficial || this.canEditCompetition(competition) || this.isLeader();
+    }
+
+    public canAnnounceCompetition(competition: CompetitionModel) {
+        return this.canAdminCompetitions() || competition.hasDelegate(this.id);
+    }
+
+    public isDelOrgOf(competition: CompetitionModel) {
+        return competition.hasDelegate(this.id) || competition.hasOrganizer(this.id);
     }
 }

@@ -76,11 +76,11 @@ export class TutorialRepository extends BaseCommonRepository<TutorialEntity>{
         if (!page.content) {
             page.content = "";
         }
-        if (tutorial.pages){
-            tutorial.pages= this.sortPages(tutorial.pages);
-        }else{
+        if (tutorial.pages) {
+            tutorial.pages = this.sortPages(tutorial.pages);
+        } else {
             tutorial.pages = [];
-        } 
+        }
         tutorial.pages.push(page);
         tutorial.pages = this.assignPageIndex(tutorial.pages);
         return this.repository.save(tutorial);

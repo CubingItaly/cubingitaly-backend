@@ -5,14 +5,24 @@ export const keys = {
             user_agent: "websitedomain",
             scope: "public",
             client_id: "client id",
-            client_secret: "client secret"
+            client_secret: "client secret",
+            wca_website: "https://www.worldcubeassociation.org"
+        },
+        test: {
+            redirect_uri: "https://cubingitalytest.herokuapp.com/api/v0/auth/wca/callback",
+            user_agent: "https://cubingitalytest.herokuapp.com",
+            scope: "public",
+            client_id: "client id",
+            client_secret: "client secret",
+            wca_website: "https://staging.worldcubeassociation.org"
         },
         dev: {
             redirect_uri: "http://localhost:4200/api/v0/auth/wca/callback",
             user_agent: "http://localhost:4200",
             scope: "public",
             client_id: "client id",
-            client_secret: "client secret"
+            client_secret: "client secret",
+            wca_website: "https://staging.worldcubeassociation.org"
         }
     },
     session: {
