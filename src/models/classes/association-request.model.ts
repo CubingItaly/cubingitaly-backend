@@ -21,6 +21,9 @@ export class AssociationRequest {
     public city: string;
 
     @autoserialize
+    public state: string;
+
+    @autoserialize
     public street: string;
 
     @autoserialize

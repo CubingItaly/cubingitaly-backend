@@ -19,6 +19,7 @@ router.post("/associate", [
     body('request.birthdate').isString().matches(/^\d{4}-\d{2}-\d{2}$/),
     body('request.fiscalCode').matches(/^$|^[a-zA-Z]{6}[0-9]{2}[abcdehlmprstABCDEHLMPRST]{1}[0-9]{2}([a-zA-Z]{1}[0-9]{3})[a-zA-Z]{1}$/),
     body('request.city').isString().isLength({ max: 50 }),
+    body('request.state').isString().isLength({ max: 50 }),
     body('request.street').isString().isLength({ max: 50 }),
     body('request.num').isString().isLength({ max: 10 }),
     body('request.country').isString().isLength({ max: 50 }),
@@ -56,20 +57,21 @@ function composeHTML(req): string {
         html = `<p>Messaggio inviato dall'utente riconosciuto come: ${getUser(req).name}</p>`;
     }
     html+="<h2>Dati anagrafici</h2>";
-    html+=`<p><strong>Nome</strong>:${request.name}</p>`;
-    html+=`<p><strong>Cognome</strong>:${request.surname}</p>`;
-    html+=`<p><strong>Luogo di nascita</strong>:${request.birthplace}</p>`;
-    html+=`<p><strong>Data di nascita</strong>:${request.birthdate}</p>`;
-    html+=`<p><strong>Codice fiscale</strong>:${request.fiscalCode}</p>`;
+    html+=`<p><strong>Nome</strong>: ${request.name}</p>`;
+    html+=`<p><strong>Cognome</strong>: ${request.surname}</p>`;
+    html+=`<p><strong>Luogo di nascita</strong>: ${request.birthplace}</p>`;
+    html+=`<p><strong>Data di nascita</strong>: ${request.birthdate}</p>`;
+    html+=`<p><strong>Codice fiscale</strong>: ${request.fiscalCode}</p>`;
     html+="<h2>Dati di residenza</h2>";
-    html+=`<p><strong>Via</strong>:${request.street}</p>`;
-    html+=`<p><strong>Numero civico</strong>:${request.num}</p>`;
-    html+=`<p><strong>Città</strong>:${request.city}</p>`;
-    html+=`<p><strong>Nazione</strong>:${request.country}</p>`;
+    html+=`<p><strong>Via</strong>: ${request.street}</p>`;
+    html+=`<p><strong>Numero civico</strong>: ${request.num}</p>`;
+    html+=`<p><strong>Città</strong>: ${request.city}</p>`;
+    html+=`<p><strong>Provincia</strong>: ${request.state}</p>`;
+    html+=`<p><strong>Nazione</strong>: ${request.country}</p>`;
     html+="<h2>Contatti</h2>";
-    html+=`<p><strong>Email</strong>:${request.email}</p>`;
+    html+=`<p><strong>Email</strong>: ${request.email}</p>`;
     html+="<h2>Richiesta di associazione</h2>";
-    html+=`<p><strong>Tipo di richiesta</strong>:socio <strong>${request.assLevel}</strong></p>`;
+    html+=`<p><strong>Tipo di richiesta</strong>: socio <strong>${request.assLevel}</strong></p>`;
     return html;
 }
 
