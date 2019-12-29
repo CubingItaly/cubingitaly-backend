@@ -14,7 +14,7 @@ export function sanitize(source: string) {
             figure: ['class'],
             div: ['data-oembed-url']
         },
-        allowedStyle: {
+        allowedStyles: {
             '*': {
                 'color': [/^\#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
                 'background-color': [/^\#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],

@@ -78,14 +78,14 @@ router.get("/delegates", async (req, res) => {
  * Get a specific user with all his personal data including the roles
  */
 router.get("/:id", async (req, res) => {
-    await sendUserFromRepository(req, res, req.params.id, false);
+    await sendUserFromRepository(req, res, Number(req.params.id), false);
 });
 
 /**
  * Get a specific user with all his personal data but the roles
  */
 router.get("/:id/short", async (req, res) => {
-    await sendUserFromRepository(req, res, req.params.id, true);
+    await sendUserFromRepository(req, res, Number(req.params.id), true);
 });
 
 export { router }

@@ -6,7 +6,7 @@ import * as passport from "passport";
 import { getUser, isLoggedIn, verifyLogin } from "../../shared/login.utils";
 import { TutorialRepository } from "../../db/repository/tutorial.repository";
 import { canAdminTutorials, canEditPages, canCreateTutorials, canPublishTutorials } from '../../shared/tutorial.permissions.utils';
-import { validationResult, Result, param, body } from "express-validator/check";
+import { validationResult, Result, param, body } from "express-validator";
 import { TutorialEntity } from "../../db/entity/tutorial.entity";
 import { TutorialModel } from "../../models/classes/tutorial.model";
 import { UserEntity } from "../../db/entity/user.entity";

@@ -4,7 +4,7 @@ import { Deserialize, Serialize } from "cerialize";
 import { ArticleEntity } from "../../db/entity/article.entity";
 import { ArticleRepository } from "../../db/repository/article.repository";
 import { getCustomRepository } from "typeorm";
-import { query, validationResult, Result } from "express-validator/check";
+import { query, validationResult, Result } from "express-validator";
 import { sendError } from "../../shared/error.utils";
 import { UserEntity } from "../../db/entity/user.entity";
 import { ArticleModel } from "../../models/classes/article.model";

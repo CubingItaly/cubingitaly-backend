@@ -11,12 +11,30 @@ export class EmailService {
         this.transport = mailgunTransport({ auth: keys.mail.auth })
         this.emailClient = nodemailer.createTransport(this.transport)
     }
-    public sendText(replyTo, html) {
+    public sendContactRequest(replyTo, html) {
         return new Promise((resolve, reject) => {
             this.emailClient.sendMail({
-                from: keys.mail.from,
-                to: keys.mail.to,
-                subject: keys.mail.subject,
+                from: keys.mail.contact.from,
+                to: keys.mail.contact.to,
+                subject: keys.mail.contact.subject,
+                replyTo: replyTo,
+                html: html
+            }, (err, info) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(info)
+                }
+            })
+        })
+    }
+
+    public sendAssociationRequest(replyTo, html) {
+        return new Promise((resolve, reject) => {
+            this.emailClient.sendMail({
+                from: keys.mail.association.from,
+                to: keys.mail.association.to,
+                subject: keys.mail.association.subject,
                 replyTo: replyTo,
                 html: html
             }, (err, info) => {

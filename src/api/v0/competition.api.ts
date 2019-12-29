@@ -428,7 +428,7 @@ router.put("/:id/directions/:did", verifyLogin, canEditCompetition, didMatch,
     });
 
 router.delete("/:id/directions/:did", verifyLogin, canEditCompetition, dirBelongsToComp, async (req, res) => {
-    await getDirectionsRepository().deleteDirection(req.params.did);
+    await getDirectionsRepository().deleteDirection(Number(req.params.did));
     getCompetitionRepository().updateDate(req.params.id);
     res.status(200).send({});
 });
@@ -559,7 +559,7 @@ router.put("/:id/tabs/:tabid/move", verifyLogin, canEditCompetition, tabBelongsT
     let comp: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
     let delta: number = Number(req.body.delta);
     try {
-        let tabs: ExtraTabEntity[] = await getExtraTabRepository().moveTab(req.params.tabid, comp, delta);
+        let tabs: ExtraTabEntity[] = await getExtraTabRepository().moveTab(Number(req.params.tabid), comp, delta);
         let model: ExtraTabModel[] = tabs.map((t: ExtraTabEntity) => t._transform());
         res.status(200).json(model);
     } catch (e) {
@@ -573,7 +573,7 @@ router.put("/:id/tabs/:tabid/move", verifyLogin, canEditCompetition, tabBelongsT
 router.delete("/:id/tabs/:tabid", verifyLogin, canEditCompetition, tabBelongsToComp, async (req, res) => {
     let comp: CompetitionEntity = await getCompetitionRepository().getCompetition(req.params.id);
     try {
-        await getExtraTabRepository().deleteTab(req.params.tabid, comp);
+        await getExtraTabRepository().deleteTab(Number(req.params.tabid), comp);
         res.status(200).json({});
     } catch (e) {
         if (process.env.NODE_ENV !== "production") {

@@ -73,7 +73,7 @@ router.get("/categories", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-    let faqEntity: FAQEntity = await getFAQRepository().getFAQ(req.params.id);
+    let faqEntity: FAQEntity = await getFAQRepository().getFAQ(Number(req.params.id));
     let model: FAQModel = faqEntity._transform();
     if (model) {
         res.status(200).json(model);
@@ -112,7 +112,7 @@ router.put("/:id", verifyLogin, canEditFAQs, verifyRequest, sanitizeContent, asy
 });
 
 router.delete("/:id", verifyLogin, canAdminFAQs, async (req, res) => {
-    await getFAQRepository().deleteFAQ(req.params.id);
+    await getFAQRepository().deleteFAQ(Number(req.params.id));
     res.status(200).json({});
 });
 

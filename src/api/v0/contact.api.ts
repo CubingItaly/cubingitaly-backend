@@ -3,7 +3,7 @@ import { sendError } from "../../shared/error.utils";
 import { Router } from "express";
 //# we need this because otherwise passport doesn't work
 import * as passport from "passport";
-import { validationResult, Result, body } from "express-validator/check";
+import { validationResult, Result, body } from "express-validator";
 import { isLoggedIn, getUser } from "../../shared/login.utils";
 import { EmailService } from './mail.service';
 const router: Router = Router();
@@ -16,7 +16,7 @@ router.post("/", [body('email').isEmail(), body('subject').isLength({ min: 5 }),
         try {
             const email: string = req.body.email;
             let mailservice = new EmailService();
-            mailservice.sendText(email, composeHTML(req))
+            mailservice.sendContactRequest(email, composeHTML(req))
                 .then(() => {
                     res.status(200).send({});
                 })
