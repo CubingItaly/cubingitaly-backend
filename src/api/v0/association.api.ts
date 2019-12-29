@@ -16,7 +16,7 @@ router.post("/associate", [
     body('request.name').isString().isLength({ max: 50 }),
     body('request.surname').isString().isLength({ max: 50 }),
     body('request.birthplace').isString().isLength({ max: 50 }),
-    body('request.birthdate').isString().matches(/^\d{4}-\d{2}-\d{2}/$),
+    body('request.birthdate').isString().matches(/^\d{4}-\d{2}-\d{2}$/),
     body('request.fiscalCode').matches(/^$|^[a-zA-Z]{6}[0-9]{2}[abcdehlmprstABCDEHLMPRST]{1}[0-9]{2}([a-zA-Z]{1}[0-9]{3})[a-zA-Z]{1}$/),
     body('request.city').isString().isLength({ max: 50 }),
     body('request.street').isString().isLength({ max: 50 }),
