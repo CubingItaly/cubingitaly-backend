@@ -27,13 +27,13 @@ import { router as faqRoutes } from './api/v0/faq.api';
 import { router as sitemap } from './api/v0/sitemap.api';
 import { router as compRoutes } from './api/v0/competition.api';
 import { router as scheduleRoutes } from './api/v0/schedule.api';
-import { router as associationRoutes} from './api/v0/association.api';
-
+import { router as associationRoutes } from './api/v0/association.api';
 
 const PORT = normalizePort(process.env.PORT || 4300);
 const db: Database = new Database();
 const app = express();
 let server;
+
 
 db.createConnection()
     .then(() => db.initDatabase())
@@ -53,7 +53,7 @@ db.createConnection()
 
 function setMiddleware() {
     app.use(helmet());
-    app.use(json());
+    app.use(json({limit: '5mb'}));
     app.use(compression());
     app.use(urlencoded({ extended: true }));
     app.use(expressSanitizer());
@@ -71,20 +71,23 @@ function addRoutes() {
     app.use("/api/v0/faq", faqRoutes);
     app.use("/api/v0/competitions/schedule", scheduleRoutes);
     app.use("/api/v0/competitions", compRoutes);
-    app.use("/api/v0/association",associationRoutes);
+    app.use("/api/v0/association", associationRoutes);
     app.use("/sitemap", sitemap);
 }
 
 function addStaticFiles() {
-    if (process.env.NODE_ENV === "production" || process.env.NODE_ENV==="test") {
+    if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test") {
+        //serve static files from upload folder
+        app.use("/caricamenti", express.static(path.join(__dirname, "/../uploads")));
         //serve static files from client folder
         app.use(express.static(path.join(__dirname, "/../client")));
-        //serve static files from upload folder
-        app.use("/caricamenti",express.static(path.join(__dirname,"/../upload")));
         //serve client routes
         app.use("/*", function (req, res) {
             res.sendFile(path.join(__dirname, "/../client/index.html"));
         });
+    }else{
+        //serve static files from upload folder
+        app.use("/caricamenti", express.static(path.join(__dirname,"../uploads")));
     }
 
 }

@@ -261,4 +261,11 @@ export class UserModel {
     public isDelOrgOf(competition: CompetitionModel) {
         return competition.hasDelegate(this.id) || competition.hasOrganizer(this.id);
     }
+    
+
+    /* Start of association permissions */
+
+    public canManageAssociation(): boolean{
+        return this.isBoard() || this.isAdmin();
+    }
 }
