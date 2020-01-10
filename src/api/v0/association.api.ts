@@ -40,7 +40,7 @@ router.post("/associate", [
         try {
             const email: string = req.body.request.email;
             let mailservice = new EmailService();
-            mailservice.sendAssociationRequest(email, composeHTML(req))
+            mailservice.sendAssociationRequest(email, composeHTML(req,false))
                 .then(() => {
                     res.status(200).send({});
                 })
@@ -59,7 +59,46 @@ router.post("/associate", [
     }
 });
 
-function composeHTML(req): string {
+
+router.post("/associate-eng", [
+    body('request.name').isString().isLength({ max: 50 }).trim().escape(),
+    body('request.surname').isString().isLength({ max: 50 }).trim().escape(),
+    body('request.birthplace').isString().isLength({ max: 50 }).trim().escape(),
+    body('request.birthdate').isString().matches(/^\d{4}-\d{2}-\d{2}$/).trim().escape(),
+    body('request.city').isString().isLength({ max: 50 }).trim().escape(),
+    body('request.state').isString().isLength({ max: 50 }).trim().escape(),
+    body('request.street').isString().isLength({ max: 50 }).trim().escape(),
+    body('request.num').isString().isLength({ max: 10 }).trim().escape(),
+    body('request.country').isString().isLength({ max: 50 }).trim().escape(),
+    body('request.email').isEmail().normalizeEmail(),
+    body('request.assLevel').isString().matches(/^premium$|^base$/).trim().escape(),
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (errors.isEmpty()) {
+        try {
+            const email: string = req.body.request.email;
+            let mailservice = new EmailService();
+            mailservice.sendAssociationRequest(email, composeHTML(req,true))
+                .then(() => {
+                    res.status(200).send({});
+                })
+                .catch(() => {
+                    sendError(res, 500, "There was an error while trying to process the request");
+                })
+
+        } catch (e) {
+            if (process.env.NODE_ENV !== "production") {
+                console.log(e)
+            }
+            sendError(res, 500, "There was an error while trying to process the request");
+        }
+    } else {
+        sendError(res, 400, "Error. Some parameter is missing or not valid");
+    }
+});
+
+
+function composeHTML(req, eng: boolean): string {
     let html: string = "";
     const request: AssociationRequest = Deserialize(req.body.request, AssociationRequest);
     if (isLoggedIn(req)) {
@@ -81,8 +120,13 @@ function composeHTML(req): string {
     html += `<p><strong>Email</strong>: ${request.email}</p>`;
     html += "<h2>Richiesta di associazione</h2>";
     html += `<p><strong>Tipo di richiesta</strong>: socio <strong>${request.assLevel}</strong></p>`;
+    if(eng){
+        html += "<p><strong>Richiesta inviata in lingua inglese</strong></p>";
+    }
     return html;
 }
+
+
 
 router.get("/", async (req, res) => {
     let repo: AssociationDocumentRepository = getCustomRepository(AssociationDocumentRepository);
