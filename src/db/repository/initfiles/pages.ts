@@ -14,16 +14,52 @@ export const pages: {
 {
     id: 2,
     title: "Tutorial",
-    content: "<p>In questa pagina trovi un elenco di tutorial redatti dal Team Qualità di Cubing Italy.</p><p>In caso volessi segnalare un errore o richiedere un nuovo tutorial puoi <a href=\"mailto:cubingitaly@gmail.com\">inviarci un'e-mail</a>.</p>",
+    content: "<p>In caso volessi segnalare un errore o richiedere un nuovo tutorial puoi <a href=`\"mailto:comunicazione@cubingitaly.org\">inviarci un'e-mail</a>.</p>",
     isPublic: true,
     indexInTutorial: -1
 },
-{ id: 3, title: "Effettua l'accesso", content: "<p style=\"text-align:justify;\">Effettua il login utilizzando il tuo account WCA.</p><p style=\"text-align:justify;\"><strong>PRIVACY POLICY -</strong> Facendo login tramite l'account WCA, acconsentite alla archiviazione di informazioni personali (nome, WCAID) nel nostro Database, esclusivamente allo scopo di erogazione del servizio (pubblicazione e gestione degli articoli, tutorial ecc.). - Cubing Italy utilizza dei cookie tecnici che sono necessari alla normale erogazione del servizio. Tali cookie, che sono piccoli file di testo che vengono scaricati nei file temporanei del tuo browser, sono usati per memorizzare la propria sessione.</p>", isPublic: true, indexInTutorial: -1 },
-{ id: 4, title: "Competizioni proposte", content: "<p style=\"text-align:justify;\">Nel seguente foglio si possono trovare le competizioni proposte per il prossimo semestre.</p><p style=\"text-align:justify;\">Il fatto che una competizione sia stata proposta non implica che si svolgerà sicuramente e sia le date che gli eventi sono variabili e potrebbero cambiare senza preavviso. Questa pagina viene resa disponibile per gli eventuali organizzatori in modo da arginare il rischio di organizzare più di una competizione nella stessa zona nello stesso periodo.</p><p style=\"text-align:justify;\">Se sei interessato a organizzare una competizione<a href=\"https://www.cubingitaly.org/tutorial/come-organizzare-una-competizione\"> leggi il tutorial su come organizzare una competizione</a>.</p>", isPublic: true, indexInTutorial: -1 },
-{ id: 5, title: "Reserved", content: "Reserved", isPublic: false, indexInTutorial: -1 },
-{ id: 6, title: "Reserved", content: "Reserved", isPublic: false, indexInTutorial: -1 },
-{ id: 7, title: "Reserved", content: "Reserved", isPublic: false, indexInTutorial: -1 },
-{ id: 8, title: "Reserved", content: "Reserved", isPublic: false, indexInTutorial: -1 },
+{
+    id: 3,
+    title: "Effettua l'accesso",
+    content: "<p style=\"text-align:justify;\">Effettua il login utilizzando il tuo account WCA.</p><p style=\"text-align:justify;\"><strong>PRIVACY POLICY -</strong> Facendo login tramite l'account WCA, acconsentite alla archiviazione di informazioni personali (nome, WCAID) nel nostro Database, esclusivamente allo scopo di erogazione del servizio (pubblicazione e gestione degli articoli, tutorial ecc.). - Cubing Italy utilizza dei cookie tecnici che sono necessari alla normale erogazione del servizio. Tali cookie, che sono piccoli file di testo che vengono scaricati nei file temporanei del tuo browser, sono usati per memorizzare la propria sessione.</p>",
+    isPublic: true,
+    indexInTutorial: -1
+},
+{
+    id: 4,
+    title: "Competizioni proposte",
+    content: "<p style=\"text-align:justify;\">Nel seguente foglio si possono trovare le competizioni proposte per il prossimo semestre.</p><p style=\"text-align:justify;\">Il fatto che una competizione sia stata proposta non implica che si svolgerà sicuramente e sia le date che gli eventi sono variabili e potrebbero cambiare senza preavviso. Questa pagina viene resa disponibile per gli eventuali organizzatori in modo da arginare il rischio di organizzare più di una competizione nella stessa zona nello stesso periodo.</p><p style=\"text-align:justify;\">Se sei interessato a organizzare una competizione<a href=\"https://www.cubingitaly.org/tutorial/come-organizzare-una-competizione\"> leggi il tutorial su come organizzare una competizione</a>.</p>",
+    isPublic: true,
+    indexInTutorial: -1
+},
+{
+    id: 5,
+    title: "Associazione",
+    content: "<p style=\"text-align:justify\">Cubing Italy è un’associazione culturale e di promozione sociale senza scopo di lucro e si pone come punto di riferimento per gli appassionati di puzzle e rompicapi tridimensionali.  </p><p style=\"text-align:justify\">Il principale scopo di Cubing Italy è quello di promuovere la crescita dello speedcubing (la disciplina che consiste nel risolvere twisty puzzle, come il Cubo di Rubik, il più rapidamente possibile), di organizzare e gestire le competizioni su tutto il territorio nazionale.</p><p style=\"text-align:justify\">Queste competizioni sono approvate dalla World Cube Association (WCA), l’associazione internazionale di cui Cubing Italy riprende e fa propri Valori e Missione.</p>",
+    isPublic: true,
+    indexInTutorial: -1
+},
+{
+    id: 6,
+    title: "Associarsi",
+    content: "Reserved",
+    isPublic: true,
+    indexInTutorial: -1
+},
+{
+    id: 7,
+    title: "Reserved",
+    content: "Reserved",
+    isPublic: true,
+    indexInTutorial: -1
+},
+{
+    id: 8,
+    title: "Reserved",
+    content: "Reserved",
+    isPublic: true,
+    indexInTutorial: -1
+},
 { id: 9, title: "Reserved", content: "Reserved", isPublic: false, indexInTutorial: -1 },
 { id: 10, title: "Reserved", content: "Reserved", isPublic: false, indexInTutorial: -1 },
 { id: 11, title: "Reserved", content: "Reserved", isPublic: false, indexInTutorial: -1 },

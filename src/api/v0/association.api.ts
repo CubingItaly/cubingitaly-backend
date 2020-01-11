@@ -163,7 +163,7 @@ router.post("/", canManageAssociation, fileValidators, async (req, res) => {
                     }
                 });
             } else {
-                sendError(res, 400, "Invalid file.");
+                sendError(res, 400, "Esiste già un documento con questo nome.");
             }
 
         } else {
@@ -196,7 +196,7 @@ router.put("/:id", canManageAssociation, fileValidators, async (req, res) => {
                             }
                         });
                     } else {
-                        sendError(res, 400, "Invalid file.");
+                        sendError(res, 400, "Esiste già un documento con questo nome.");
                     }
                 } else {
                     sendError(res, 400, "you need to upload a PDF");
@@ -216,7 +216,7 @@ router.put("/:id", canManageAssociation, fileValidators, async (req, res) => {
                         }
                     });
                 } else {
-                    sendError(res, 400, "Invalid title");
+                    sendError(res, 400, "Esiste già un documento con questo nome.");
                 }
             }
         } else {

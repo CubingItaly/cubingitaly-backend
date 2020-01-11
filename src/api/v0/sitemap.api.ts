@@ -52,6 +52,7 @@ function getStaticPages(): urlClass[] {
     pages.push(createStaticPage("https://www.cubingitaly.org/tutorial"));
     pages.push(createStaticPage("https://www.cubingitaly.org/competizioni/proposte"));
     pages.push(createStaticPage("https://www.cubingitaly.org/contatti"));
+    pages.push(createStaticPage("https://www.cubingitaly.org/associazione"));
     return pages;
 }
 

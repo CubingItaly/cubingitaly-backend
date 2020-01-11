@@ -13,8 +13,8 @@ export class TeamRepository extends BaseCommonRepository<TeamEntity> {
         isPublic: false
     }, {
         id: "board",
-        name: "Cubing Italy Board",
-        isPublic: true
+        name: "Consiglio Direttivo",
+        isPublic: false
     }, {
         id: "citc",
         name: "Cubing Italy Team Comunicazione",
