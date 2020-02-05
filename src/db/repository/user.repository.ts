@@ -93,7 +93,7 @@ export class UserRepository extends BaseCommonRepository<UserEntity>{
     public async findUsersByName(name: string): Promise<UserEntity[]> {
         return this.repository.find({
             select: ["id", "wcaId", "name", "delegateStatus"],
-            where: { name: Like(name + "%") },
+            where: { name: Like(name + "%"), id: Not(0) },
             take: 10,
             order: { name: "ASC" }
         });

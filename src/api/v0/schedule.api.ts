@@ -117,7 +117,7 @@ router.get("/wca/callback", verifyLogin, async (req, res) => {
                     });
                     await getScheduleRepository().insertSchedule(competition, schedEntity);
                     getCompetitionRepository().updateDate(wcif.id);
-                    res.redirect(`/competizioni/edit/${wcif.id}?tab=2&imported=true`);
+                    res.redirect(`/admin/competizioni/${wcif.id}?tab=2&imported=true`);
                 } else {
                     sendError(res, 403, "Permission denied. You don't have the permissions to perform the requested action");
                 }

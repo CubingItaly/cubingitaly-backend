@@ -47,6 +47,15 @@ function sanitizeContent(req, res, next) {
     next();
 }
 
+
+router.get("/public", async (req,res)=>{
+    let repo: PageRepository = getPageRepository();
+    let pageEntities: PageEntity[] = await repo.getPublicPages();
+    let pageModel: PageModel[] = pageEntities.map(p => p._transform());
+    res.status(200).json(pageModel);
+});
+
+
 router.get("/:id", async (req, res) => {
     let id: number = Number(req.params.id);
     let repo: PageRepository = getPageRepository();
@@ -73,6 +82,7 @@ router.put("/:id", pageIsInTheBody, verifyLogin, canEditPages, pageExists, sanit
     dbPage = await getPageRepository().updatePage(dbPage, user);
     return res.status(200).json(dbPage._transform());
 });
+
 
 
 export { router }

@@ -14,12 +14,14 @@ import { UserModel } from "../../models/classes/user.model";
 import { AssociationDocumentRepository } from "../../db/repository/association-document.repository";
 import * as fs from "fs";
 import { AssociationDocumentEntity } from "../../db/entity/association.entity";
+import { saveSpreadsheet} from "./controller/sheets.controller";
 
 const router: Router = Router();
 
 router.use(upload({
     limits: 4 * 1024 * 1024
 }));
+
 
 router.post("/associate", [
     body('request.name').isString().isLength({ max: 50 }).trim().escape(),
@@ -38,9 +40,10 @@ router.post("/associate", [
     const errors = validationResult(req);
     if (errors.isEmpty()) {
         try {
+            saveSpreadsheet(req);
             const email: string = req.body.request.email;
             let mailservice = new EmailService();
-            mailservice.sendAssociationRequest(email, composeHTML(req,false))
+            mailservice.sendAssociationRequest(email, composeHTML(req,false),req.body.request.name,req.body.request.surname)
                 .then(() => {
                     res.status(200).send({});
                 })
@@ -76,9 +79,10 @@ router.post("/associate-eng", [
     const errors = validationResult(req);
     if (errors.isEmpty()) {
         try {
+            saveSpreadsheet(req);
             const email: string = req.body.request.email;
             let mailservice = new EmailService();
-            mailservice.sendAssociationRequest(email, composeHTML(req,true))
+            mailservice.sendAssociationRequest(email, composeHTML(req,true),req.body.request.name,req.body.request.surname)
                 .then(() => {
                     res.status(200).send({});
                 })

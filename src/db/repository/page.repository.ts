@@ -1,4 +1,4 @@
-import { EntityRepository, getCustomRepository } from "typeorm";
+import { EntityRepository, getCustomRepository, Not } from "typeorm";
 import { BaseCommonRepository } from "../BaseCommonRepository";
 import { PageEntity } from "../entity/page.entity";
 import { UserEntity } from "../entity/user.entity";
@@ -91,5 +91,9 @@ export class PageRepository extends BaseCommonRepository<PageEntity>{
             await this.repository.remove(tmp);
         }
         return;
+    }
+
+    public async getPublicPages(): Promise<PageEntity[]> {
+        return this.repository.find({ where: { indexInTutorial: -1, title: Not("Reserved") }, select: ["id", "title"] });
     }
 }

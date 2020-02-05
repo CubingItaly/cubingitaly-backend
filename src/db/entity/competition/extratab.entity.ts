@@ -12,7 +12,7 @@ export class ExtraTabEntity extends BaseEntity implements ITransformable<ExtraTa
     @Column()
     public name: string;
 
-    @Column()
+    @Column({type: "text"})
     public content: string;
 
     @Column()

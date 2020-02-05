@@ -15,3 +15,4 @@ coverage/
 build
 
 uploads
+src/secrets/client_secret.json
