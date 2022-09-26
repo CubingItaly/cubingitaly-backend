@@ -32,7 +32,7 @@
       "forever": "^1.0.0",
       "helmet": "^3.20.0",
       "nodemailer": "^6.3.0",
-      "nodemailer-mailgun-transport": "^1.4.0",
+      "nodemailer-mailgun-transport": "^2.1.5",
       "passport": "^0.4.0",
       "passport-wca": "^1.0.3",
       "path": "^0.12.7",
